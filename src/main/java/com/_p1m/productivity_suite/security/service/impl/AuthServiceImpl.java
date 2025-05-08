@@ -126,8 +126,18 @@ public class AuthServiceImpl implements AuthService {
                     .build();
         }
 
+        if (this.userRepository.findByUsername(registerRequest.getUsername()).isPresent()) {
+            log.warn("Username already exists: {}", registerRequest.getUsername());
+            return ApiResponse.builder()
+                    .success(0)
+                    .code(HttpStatus.CONFLICT.value())
+                    .message("Username is already in use")
+                    .build();
+        }
+
         final User newUser = User.builder()
                 .name(registerRequest.getName())
+                .username(registerRequest.getUsername())
                 .email(registerRequest.getEmail())
                 .password(this.passwordEncoder.encode(registerRequest.getPassword()))
                 .gender(registerRequest.getGender())
