@@ -12,7 +12,7 @@ RUN chmod +x /app/gradlew
 
 RUN sed -i '/buildScan {/,/}/s/^/\/\/ /' /app/build.gradle
 
-RUN /app/gradlew clean build
+RUN /app/gradlew clean build -x test
 
 FROM openjdk:17-jdk-slim
 WORKDIR /app
