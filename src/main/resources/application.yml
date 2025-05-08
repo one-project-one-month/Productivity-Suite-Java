@@ -2,7 +2,7 @@ spring:
   application:
     name: productivity-suite
   profiles:
-    active: dev
+    active: prod
   jpa:
     hibernate:
       ddl-auto: update

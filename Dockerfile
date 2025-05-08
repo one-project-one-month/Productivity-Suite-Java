@@ -4,18 +4,22 @@ WORKDIR /app
 COPY build.gradle settings.gradle gradlew /app/
 COPY gradle /app/gradle
 
-RUN chmod +x gradlew
-
-RUN ./gradlew build --no-daemon || return 0
+RUN chmod +x /app/gradlew
 
 COPY . /app
 
-RUN ./gradlew clean build -x test --no-daemon
+RUN chmod +x /app/gradlew
+
+RUN sed -i '/buildScan {/,/}/s/^/\/\/ /' /app/build.gradle
+
+RUN /app/gradlew clean build
 
 FROM openjdk:17-jdk-slim
 WORKDIR /app
 
-COPY --from=build /app/build/libs/*.war app.war
+COPY --from=build /app/build/libs/*.jar app.jar
 COPY .env .env
 
-ENTRYPOINT ["java", "-jar", "app.war"]
+EXPOSE 8080
+
+ENTRYPOINT ["java", "-jar", "app.jar"]
