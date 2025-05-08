@@ -1,0 +1,6 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://dpg-d0eaemgdl3ps73bhmc2g-a.oregon-postgres.render.com/productivity_suite_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
+    username: root
+    password: tGDTZ3fkRj7FfwRWlAdFKw2MYiMBqAYC
+    driver-class-name: org.postgresql.Driver
