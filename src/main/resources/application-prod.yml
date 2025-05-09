@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: ${SPRING_DATASOURCE_URL}
-    username: ${SPRING_DATASOURCE_USERNAME}
-    password: ${SPRING_DATASOURCE_PASSWORD}
+    url: jdbc:postgresql://dpg-d0eaemgdl3ps73bhmc2g-a.oregon-postgres.render.com/productivity_suite_db
+    username: root
+    password: tGDTZ3fkRj7FfwRWlAdFKw2MYiMBqAYC
     driver-class-name: org.postgresql.Driver
