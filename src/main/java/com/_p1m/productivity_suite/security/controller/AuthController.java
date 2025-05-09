@@ -39,16 +39,13 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<ApiResponse> login(
             @Validated @RequestBody final LoginRequest loginRequest,
-            final HttpServletRequest request,
-            @RequestParam(required = false) final String routeName,
-            @RequestParam(required = false) final String browserName,
-            @RequestParam(required = false) final String pageName
+            final HttpServletRequest request
     ) {
         log.info("Received login attempt for email: {}", loginRequest.getEmail());
 
         double requestStartTime = RequestUtils.extractRequestStartTime(request);
 
-        final ApiResponse response = this.authService.authenticateUser(loginRequest, routeName, browserName, pageName);
+        final ApiResponse response = this.authService.authenticateUser(loginRequest);
 
         if (response.getSuccess() == 1) {
             log.info("Login successful for user: {}", loginRequest.getEmail());

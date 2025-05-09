@@ -6,7 +6,7 @@ import com._p1m.productivity_suite.security.dto.RegisterRequest;
 import com._p1m.productivity_suite.security.dto.ResetPasswordRequest;
 
 public interface AuthService {
-    ApiResponse authenticateUser(final LoginRequest loginRequest, final String routeName, String browserName, String pageName);
+    ApiResponse authenticateUser(final LoginRequest loginRequest);
 
     ApiResponse registerUser(final RegisterRequest registerRequest);
 

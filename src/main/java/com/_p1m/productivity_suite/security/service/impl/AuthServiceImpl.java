@@ -51,7 +51,7 @@ public class AuthServiceImpl implements AuthService {
     private String emailInProcess;
 
     @Override
-    public ApiResponse authenticateUser(final LoginRequest loginRequest, final String routeName, final String browserName, String pageName) {
+    public ApiResponse authenticateUser(final LoginRequest loginRequest) {
         final String identifier = loginRequest.getEmail();
         log.info("Authenticating user with identifier: {}", identifier);
 
