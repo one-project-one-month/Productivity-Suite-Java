@@ -1,4 +1,4 @@
-package com._p1m.productivity_suite.security.service;
+package com._p1m.productivity_suite.security.service.normal;
 
 import io.jsonwebtoken.Claims;
 

@@ -1,12 +1,15 @@
 package com._p1m.productivity_suite.security.controller;
 
+import com._p1m.productivity_suite.config.command.*;
 import com._p1m.productivity_suite.config.exceptions.UnauthorizedException;
 import com._p1m.productivity_suite.config.request.RequestUtils;
 import com._p1m.productivity_suite.config.response.dto.ApiResponse;
 import com._p1m.productivity_suite.config.response.utils.ResponseUtils;
+import com._p1m.productivity_suite.config.utils.ObjectMapperUtils;
 import com._p1m.productivity_suite.security.dto.*;
-import com._p1m.productivity_suite.security.service.AuthService;
-import com._p1m.productivity_suite.security.service.JwtService;
+import com._p1m.productivity_suite.security.service.normal.AuthService;
+import com._p1m.productivity_suite.security.service.normal.JwtService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -27,34 +30,42 @@ public class AuthController {
 
     private final AuthService authService;
     public final JwtService jwtService;
+    private final CommandProcessingService commandProcessingService;
 
+    @PostMapping("/login")
     @Operation(
             summary = "Login a user",
             description = "Authenticates a user using email and password, and returns authentication tokens.",
             responses = {
-                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Login successful",
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "200", description = "Login successful",
                             content = @Content(schema = @Schema(implementation = ApiResponse.class)))
             }
     )
-    @PostMapping("/login")
     public ResponseEntity<ApiResponse> login(
             @Validated @RequestBody final LoginRequest loginRequest,
-            final HttpServletRequest request,
-            @RequestParam(required = false) final String routeName,
-            @RequestParam(required = false) final String browserName,
-            @RequestParam(required = false) final String pageName
-    ) {
+            final HttpServletRequest request
+    ) throws JsonProcessingException {
         log.info("Received login attempt for email: {}", loginRequest.getEmail());
-
         double requestStartTime = RequestUtils.extractRequestStartTime(request);
 
-        final ApiResponse response = this.authService.authenticateUser(loginRequest, routeName, browserName, pageName);
+        final String json = ObjectMapperUtils.writeValueAsString(loginRequest);
 
-        if (response.getSuccess() == 1) {
-            log.info("Login successful for user: {}", loginRequest.getEmail());
-        } else {
-            log.warn("Login failed for user: {}", loginRequest.getEmail());
-        }
+        final CommandWrapper wrapper = new CommandWrapperBuilder()
+                .login()
+                .withJson(json)
+                .build();
+
+        final JsonCommand command = JsonCommand.from(wrapper);
+
+        final CommandProcessingResult result = this.commandProcessingService.process(command);
+
+        final ApiResponse response = ApiResponse.builder()
+                .success(1)
+                .code(200)
+                .message(result.getMessage())
+                .data(result.getData())
+                .build();
 
         return ResponseUtils.buildResponse(request, response, requestStartTime);
     }

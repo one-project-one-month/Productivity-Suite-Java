@@ -1,4 +1,4 @@
-package com._p1m.productivity_suite.security.service;
+package com._p1m.productivity_suite.security.service.normal;
 
 import com._p1m.productivity_suite.config.response.dto.ApiResponse;
 import com._p1m.productivity_suite.security.dto.LoginRequest;
@@ -6,7 +6,7 @@ import com._p1m.productivity_suite.security.dto.RegisterRequest;
 import com._p1m.productivity_suite.security.dto.ResetPasswordRequest;
 
 public interface AuthService {
-    ApiResponse authenticateUser(final LoginRequest loginRequest, final String routeName, String browserName, String pageName);
+    ApiResponse authenticateUser(final LoginRequest loginRequest);
 
     ApiResponse registerUser(final RegisterRequest registerRequest);
 
