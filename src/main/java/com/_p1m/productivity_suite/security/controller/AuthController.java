@@ -5,7 +5,6 @@ import com._p1m.productivity_suite.config.exceptions.UnauthorizedException;
 import com._p1m.productivity_suite.config.request.RequestUtils;
 import com._p1m.productivity_suite.config.response.dto.ApiResponse;
 import com._p1m.productivity_suite.config.response.utils.ResponseUtils;
-import com._p1m.productivity_suite.config.utils.ObjectMapperUtils;
 import com._p1m.productivity_suite.security.dto.*;
 import com._p1m.productivity_suite.security.service.normal.AuthService;
 import com._p1m.productivity_suite.security.service.normal.JwtService;
@@ -43,17 +42,15 @@ public class AuthController {
             }
     )
     public ResponseEntity<ApiResponse> login(
-            @Validated @RequestBody final LoginRequest loginRequest,
+            @RequestBody final String jsonBody,
             final HttpServletRequest request
     ) throws JsonProcessingException {
-        log.info("Received login attempt for email: {}", loginRequest.getEmail());
-        double requestStartTime = RequestUtils.extractRequestStartTime(request);
 
-        final String json = ObjectMapperUtils.writeValueAsString(loginRequest);
+        final double requestStartTime = RequestUtils.extractRequestStartTime(request);
 
         final CommandWrapper wrapper = new CommandWrapperBuilder()
                 .login()
-                .withJson(json)
+                .withJson(jsonBody)
                 .build();
 
         final JsonCommand command = JsonCommand.from(wrapper);
