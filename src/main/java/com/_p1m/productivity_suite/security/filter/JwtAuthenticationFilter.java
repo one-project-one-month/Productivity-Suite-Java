@@ -1,7 +1,7 @@
 package com._p1m.productivity_suite.security.filter;
 
 import com._p1m.productivity_suite.config.exceptions.UnauthorizedException;
-import com._p1m.productivity_suite.security.service.JwtService;
+import com._p1m.productivity_suite.security.service.normal.JwtService;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

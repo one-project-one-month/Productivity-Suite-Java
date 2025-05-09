@@ -4,7 +4,7 @@ import com._p1m.productivity_suite.config.exceptions.UnauthorizedException;
 import com._p1m.productivity_suite.features.users.dto.response.UserDto;
 import com._p1m.productivity_suite.data.models.User;
 import com._p1m.productivity_suite.features.users.repository.UserRepository;
-import com._p1m.productivity_suite.security.service.JwtService;
+import com._p1m.productivity_suite.security.service.normal.JwtService;
 import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;

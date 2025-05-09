@@ -1,7 +1,7 @@
 package com._p1m.productivity_suite.security.utils;
 
 import com._p1m.productivity_suite.data.models.User;
-import com._p1m.productivity_suite.security.service.JwtService;
+import com._p1m.productivity_suite.security.service.normal.JwtService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

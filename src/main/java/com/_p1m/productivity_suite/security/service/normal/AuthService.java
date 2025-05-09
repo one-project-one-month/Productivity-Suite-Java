@@ -1,4 +1,4 @@
-package com._p1m.productivity_suite.security.service;
+package com._p1m.productivity_suite.security.service.normal;
 
 import com._p1m.productivity_suite.config.response.dto.ApiResponse;
 import com._p1m.productivity_suite.security.dto.LoginRequest;

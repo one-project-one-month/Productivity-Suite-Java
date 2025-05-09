@@ -1,4 +1,4 @@
-package com._p1m.productivity_suite.security.service.impl;
+package com._p1m.productivity_suite.security.service.normal.impl;
 
 import com._p1m.productivity_suite.config.exceptions.UnauthorizedException;
 import com._p1m.productivity_suite.config.response.dto.ApiResponse;
@@ -14,8 +14,8 @@ import com._p1m.productivity_suite.security.dto.LoginRequest;
 import com._p1m.productivity_suite.security.dto.RegisterRequest;
 import com._p1m.productivity_suite.security.dto.ResetPasswordRequest;
 import com._p1m.productivity_suite.security.dto.VerifyEmailRequest;
-import com._p1m.productivity_suite.security.service.AuthService;
-import com._p1m.productivity_suite.security.service.JwtService;
+import com._p1m.productivity_suite.security.service.normal.AuthService;
+import com._p1m.productivity_suite.security.service.normal.JwtService;
 import com._p1m.productivity_suite.security.utils.AuthUtil;
 import com._p1m.productivity_suite.security.utils.OtpUtils;
 import io.jsonwebtoken.Claims;

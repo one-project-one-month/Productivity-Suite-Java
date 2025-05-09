@@ -1,8 +1,8 @@
-package com._p1m.productivity_suite.security.service.impl;
+package com._p1m.productivity_suite.security.service.normal.impl;
 
 import com._p1m.productivity_suite.config.exceptions.TokenExpiredException;
 import com._p1m.productivity_suite.config.exceptions.UnauthorizedException;
-import com._p1m.productivity_suite.security.service.JwtService;
+import com._p1m.productivity_suite.security.service.normal.JwtService;
 import com._p1m.productivity_suite.security.utils.JwtUtil;
 import io.jsonwebtoken.Claims;
 import org.springframework.stereotype.Service;
