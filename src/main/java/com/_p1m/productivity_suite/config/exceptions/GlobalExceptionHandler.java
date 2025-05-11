@@ -1,8 +1,10 @@
-package com._p1m.productivity_suite.config.exceptions;
+package com._p1m.productivity_suite.config.exceptions;/*
+ * @Author : Thant Htoo Aung
+ * @Date : 6/5/2025
+ * @Time : 11:45 AM (ICT)
+ */
 
 import com._p1m.productivity_suite.config.response.dto.ApiResponse;
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,7 +25,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Global exception handler for centralized exception management across the application.
@@ -101,45 +102,22 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         );
     }
 
-//    @Override
-//    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
-//                                                                  @NotNull HttpHeaders headers,
-//                                                                  HttpStatusCode status,
-//                                                                  WebRequest request) {
-//        List<Map<String, String>> errors = new ArrayList<>();
-//        ex.getBindingResult().getFieldErrors().forEach(error -> {
-//            Map<String, String> errorMap = new HashMap<>();
-//            errorMap.put("field", error.getField());
-//            errorMap.put("message", error.getDefaultMessage());
-//            errors.add(errorMap);
-//        });
-//
-//        HttpServletRequest httpServletRequest = ((HttpServletRequest) request.resolveReference(WebRequest.REFERENCE_REQUEST));
-//        assert httpServletRequest != null;
-//        ApiResponse errorResponse = ApiResponse.builder()
-//                .success(0)
-//                .code(HttpStatus.UNPROCESSABLE_ENTITY.value())
-//                .message("Validation failed")
-//                .data(errors)
-//                .meta(Map.of(
-//                    "method", httpServletRequest.getMethod(),
-//                    "endpoint", httpServletRequest.getRequestURI()
-//                ))
-//                .duration(Instant.now().getEpochSecond())
-//                .build();
-//
-//        return new ResponseEntity<>(errorResponse, headers, status);
-//    }
+    @Override
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
+                                                                  @NotNull HttpHeaders headers,
+                                                                  HttpStatusCode status,
+                                                                  WebRequest request) {
+        List<Map<String, String>> errors = new ArrayList<>();
+        ex.getBindingResult().getFieldErrors().forEach(error -> {
+            Map<String, String> errorMap = new HashMap<>();
+            errorMap.put("field", error.getField());
+            errorMap.put("message", error.getDefaultMessage());
+            errors.add(errorMap);
+        });
 
-    @ExceptionHandler(BeanValidationException.class)
-    public ResponseEntity<Object> handleBeanValidationException(final BeanValidationException ex, final WebRequest request) {
-        final List<Map<String, String>> errors = ex.getViolations().stream()
-                .map(v -> Map.of("field", v.getPropertyPath().toString(), "message", v.getMessage()))
-                .collect(Collectors.toList());
-
-        final HttpServletRequest httpServletRequest = ((HttpServletRequest) request.resolveReference(WebRequest.REFERENCE_REQUEST));
+        HttpServletRequest httpServletRequest = ((HttpServletRequest) request.resolveReference(WebRequest.REFERENCE_REQUEST));
         assert httpServletRequest != null;
-        final ApiResponse errorResponse = ApiResponse.builder()
+        ApiResponse errorResponse = ApiResponse.builder()
                 .success(0)
                 .code(HttpStatus.UNPROCESSABLE_ENTITY.value())
                 .message("Validation failed")
@@ -151,17 +129,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .duration(Instant.now().getEpochSecond())
                 .build();
 
-        return new ResponseEntity<>(errorResponse, HttpStatus.UNPROCESSABLE_ENTITY);
-    }
-
-    @ExceptionHandler({JsonParseException.class, JsonMappingException.class})
-    public ResponseEntity<ApiResponse> handleJsonParseException(Exception ex, HttpServletRequest request) {
-        return buildErrorResponse(
-                HttpStatus.BAD_REQUEST,
-                "Malformed JSON request",
-                ex.getMessage(),
-                request
-        );
+        return new ResponseEntity<>(errorResponse, headers, status);
     }
 
     /**
@@ -201,18 +169,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(EntityDeletionException.class)
     public ResponseEntity<ApiResponse> handleEntityDeletionException(EntityDeletionException ex, HttpServletRequest request) {
         return buildErrorResponse(HttpStatus.CONFLICT, ex.getMessage(), "Entity Deletion", request);
-    }
-
-    /**
-     * Handles UnsupportedParameterException, thrown when unknown or unexpected parameters are sent in a command.
-     *
-     * @param ex the UnsupportedParameterException encountered.
-     * @param request the current HTTP request.
-     * @return a ResponseEntity containing the standardized ApiResponse.
-     */
-    @ExceptionHandler(UnsupportedParameterException.class)
-    public ResponseEntity<ApiResponse> handleUnsupportedParameterException(UnsupportedParameterException ex, HttpServletRequest request) {
-        return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), "Unsupported parameter(s) in request.", request);
     }
 
     /**
