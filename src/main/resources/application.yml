@@ -2,7 +2,7 @@ spring:
   application:
     name: productivity-suite
   profiles:
-    active: prod
+    active: dev
   jpa:
     hibernate:
       ddl-auto: update
@@ -12,3 +12,5 @@ springdoc:
   paths-to-match: /productivity-suite/api/v1/**
   api-docs:
     path: /v3/api-docs
+application:
+  frontend-urls: http://localhost:3000, https://productivity-suite-app.netlify.app
