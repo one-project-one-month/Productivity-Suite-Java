@@ -44,6 +44,12 @@ public class User {
     @Column(nullable = false)
     private boolean loginFirstTime = true;
 
+    private String dateFormat;
+
+    @ManyToOne
+    @JoinColumn(name = "currency_id")
+    private Currency currency;
+
     @CreationTimestamp
     private LocalDateTime createdAt;
 
