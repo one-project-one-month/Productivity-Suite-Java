@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class NoteResponse {
+    private Long userId;
     private Long id;
     private String title;
     private String body;
