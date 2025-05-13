@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UpdateNoteRequest {
-    private Long userId;
     private String title;
     private String body;
 }

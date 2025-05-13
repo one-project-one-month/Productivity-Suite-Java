@@ -6,7 +6,9 @@ import com._p1m.productivity_suite.features.note_taking.dto.CreateNoteRequest;
 import com._p1m.productivity_suite.features.note_taking.dto.NoteResponse;
 import com._p1m.productivity_suite.features.note_taking.dto.UpdateNoteRequest;
 import com._p1m.productivity_suite.features.note_taking.repository.NoteRepository;
+import com._p1m.productivity_suite.features.users.dto.response.UserDto;
 import com._p1m.productivity_suite.features.users.repository.UserRepository;
+import com._p1m.productivity_suite.features.users.utils.UserUtil;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Sort;
@@ -23,12 +25,13 @@ import static com._p1m.productivity_suite.config.utils.RepositoryUtils.*;
 public class NoteServiceImpl implements NoteService{
     private final NoteRepository noteRepository;
     private final UserRepository userRepository;
+    private final UserUtil userUtil;
     private final ModelMapper modelMapper;
 
     @Override
-    public void createNote(final CreateNoteRequest createNoteRequest) {
-        final Long userId = createNoteRequest.getUserId();
-        final User user = findByIdOrThrow(this.userRepository, userId, "User");
+    public void createNote(final CreateNoteRequest createNoteRequest, final String authHeader) {
+        final UserDto userDto = userUtil.getCurrentUserDto(authHeader);
+        final User user = findByIdOrThrow(this.userRepository, userDto.getId(), "User");
         final Note note = Note.builder()
                 .title(createNoteRequest.getTitle())
                 .body(createNoteRequest.getBody())
@@ -38,14 +41,16 @@ public class NoteServiceImpl implements NoteService{
     }
 
     @Override
-    public List<NoteResponse> retrieveAllByUser(final Long userId) {
+    public List<NoteResponse> retrieveAllByUser(final String authHeader) {
+        final UserDto userDto = userUtil.getCurrentUserDto(authHeader);
         final Sort sortByUpdatedAt = Sort.by(Sort.Direction.DESC, "updatedAt");
-        final List<Note> notes = this.noteRepository.findAllByUserId(userId, sortByUpdatedAt);
+        final List<Note> notes = this.noteRepository.findAllByUserId(userDto.getId(), sortByUpdatedAt);
         return mapList(notes, NoteResponse.class, this.modelMapper);
     }
 
     @Override
-    public NoteResponse retrieveOne(final Long id, final Long userId) {
+    public NoteResponse retrieveOne(final Long id, final String authHeader) {
+        final UserDto userDto = userUtil.getCurrentUserDto(authHeader);
         final Note note = findByIdOrThrow(this.noteRepository, id, "Note");
         return map(note, NoteResponse.class, this.modelMapper);
     }
