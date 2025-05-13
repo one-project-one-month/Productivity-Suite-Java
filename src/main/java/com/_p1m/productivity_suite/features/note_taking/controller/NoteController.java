@@ -39,11 +39,12 @@ public class NoteController {
     )
     public ResponseEntity<ApiResponse> createNote(
             @Validated @RequestBody final CreateNoteRequest createNoteRequest,
+            @RequestHeader("Authorization") final String authHeader,
             final HttpServletRequest request
     ) {
         final double requestStartTime = RequestUtils.extractRequestStartTime(request);
 
-        this.noteService.createNote(createNoteRequest);
+        this.noteService.createNote(createNoteRequest, authHeader);
 
         final ApiResponse response = ApiResponse.builder()
                 .success(1)
@@ -64,12 +65,12 @@ public class NoteController {
             }
     )
     public ResponseEntity<ApiResponse> retrieveAllNotes(
-            @RequestParam("userId") Long userId,
+            @RequestHeader("Authorization") final String authHeader,
             final HttpServletRequest request
     ) {
         final double requestStartTime = RequestUtils.extractRequestStartTime(request);
 
-        final List<NoteResponse> notes = this.noteService.retrieveAllByUser(userId);
+        final List<NoteResponse> notes = this.noteService.retrieveAllByUser(authHeader);
 
         final ApiResponse response = ApiResponse.builder()
                 .success(1)
@@ -90,13 +91,13 @@ public class NoteController {
             }
     )
     public ResponseEntity<ApiResponse> retrieveNoteById(
-            @RequestParam("userId") Long userId,
+            @RequestHeader("Authorization") final String authHeader,
             @PathVariable final Long id,
             final HttpServletRequest request
     ) {
         final double requestStartTime = RequestUtils.extractRequestStartTime(request);
 
-        final NoteResponse note = this.noteService.retrieveOne(id, userId);
+        final NoteResponse note = this.noteService.retrieveOne(id, authHeader);
 
         final ApiResponse response = ApiResponse.builder()
                 .success(1)
