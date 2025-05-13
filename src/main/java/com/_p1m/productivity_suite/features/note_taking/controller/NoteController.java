@@ -42,9 +42,8 @@ public class NoteController {
             final HttpServletRequest request
     ) {
         final double requestStartTime = RequestUtils.extractRequestStartTime(request);
-        // final Long userId =  where should I get userId from
 
-        this.noteService.createNote(userId, createNoteRequest);
+        this.noteService.createNote(createNoteRequest);
 
         final ApiResponse response = ApiResponse.builder()
                 .success(1)
@@ -65,10 +64,10 @@ public class NoteController {
             }
     )
     public ResponseEntity<ApiResponse> retrieveAllNotes(
+            @RequestParam("userId") Long userId,
             final HttpServletRequest request
     ) {
         final double requestStartTime = RequestUtils.extractRequestStartTime(request);
-        //final Long userId =
 
         final List<NoteResponse> notes = this.noteService.retrieveAllByUser(userId);
 
@@ -91,12 +90,13 @@ public class NoteController {
             }
     )
     public ResponseEntity<ApiResponse> retrieveNoteById(
+            @RequestParam("userId") Long userId,
             @PathVariable final Long id,
             final HttpServletRequest request
     ) {
         final double requestStartTime = RequestUtils.extractRequestStartTime(request);
 
-        final NoteResponse note = this.noteService.retrieveOne(id);
+        final NoteResponse note = this.noteService.retrieveOne(id, userId);
 
         final ApiResponse response = ApiResponse.builder()
                 .success(1)

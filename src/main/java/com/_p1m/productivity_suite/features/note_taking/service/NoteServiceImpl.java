@@ -26,7 +26,8 @@ public class NoteServiceImpl implements NoteService{
     private final ModelMapper modelMapper;
 
     @Override
-    public void createNote(final Long userId, final CreateNoteRequest createNoteRequest) {
+    public void createNote(final CreateNoteRequest createNoteRequest) {
+        final Long userId = createNoteRequest.getUserId();
         final User user = findByIdOrThrow(this.userRepository, userId, "User");
         final Note note = Note.builder()
                 .title(createNoteRequest.getTitle())
@@ -44,7 +45,7 @@ public class NoteServiceImpl implements NoteService{
     }
 
     @Override
-    public NoteResponse retrieveOne(final Long id) {
+    public NoteResponse retrieveOne(final Long id, final Long userId) {
         final Note note = findByIdOrThrow(this.noteRepository, id, "Note");
         return map(note, NoteResponse.class, this.modelMapper);
     }
