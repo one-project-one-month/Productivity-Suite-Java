@@ -1,5 +1,6 @@
 package com._p1m.productivity_suite.features.note_taking.service;
 
+import com._p1m.productivity_suite.config.exceptions.UnauthorizedException;
 import com._p1m.productivity_suite.data.models.Note;
 import com._p1m.productivity_suite.data.models.User;
 import com._p1m.productivity_suite.features.note_taking.dto.CreateNoteRequest;
@@ -52,6 +53,11 @@ public class NoteServiceImpl implements NoteService{
     public NoteResponse retrieveOne(final String authHeader, final Long id) {
         final UserDto userDto = userUtil.getCurrentUserDto(authHeader);
         final Note note = findByIdOrThrow(this.noteRepository, id, "Note");
+
+        if (!note.getUser().getId().equals(userDto.getId())) {
+            throw new UnauthorizedException("You are not authorized to update this note.");
+        }
+
         return map(note, NoteResponse.class, this.modelMapper);
     }
 
@@ -59,6 +65,11 @@ public class NoteServiceImpl implements NoteService{
     public void updateNote(final UpdateNoteRequest updateNoteRequest, final String authHeader, final Long id) {
         final UserDto userDto = userUtil.getCurrentUserDto(authHeader);
         final Note note = findByIdOrThrow(this.noteRepository, id, "Note");
+
+        if (!note.getUser().getId().equals(userDto.getId())) {
+            throw new UnauthorizedException("You are not authorized to update this note.");
+        }
+
         note.setTitle(updateNoteRequest.getTitle());
         note.setBody(updateNoteRequest.getBody());
         save(this.noteRepository, note, "Note");
@@ -67,6 +78,12 @@ public class NoteServiceImpl implements NoteService{
     @Override
     public void deleteNote(final String authHeader, final Long id) {
         final UserDto userDto = userUtil.getCurrentUserDto(authHeader);
+        final Note note = findByIdOrThrow(this.noteRepository, id, "Note");
+
+        if (!note.getUser().getId().equals(userDto.getId())) {
+            throw new UnauthorizedException("You are not authorized to update this note.");
+        }
+
         deleteById(this.noteRepository, id, "Note");
     }
 }
