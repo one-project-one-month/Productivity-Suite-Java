@@ -49,14 +49,15 @@ public class NoteServiceImpl implements NoteService{
     }
 
     @Override
-    public NoteResponse retrieveOne(final Long id, final String authHeader) {
+    public NoteResponse retrieveOne(final String authHeader, final Long id) {
         final UserDto userDto = userUtil.getCurrentUserDto(authHeader);
         final Note note = findByIdOrThrow(this.noteRepository, id, "Note");
         return map(note, NoteResponse.class, this.modelMapper);
     }
 
     @Override
-    public void updateNote(final Long id, final UpdateNoteRequest updateNoteRequest) {
+    public void updateNote(final UpdateNoteRequest updateNoteRequest, final String authHeader, final Long id) {
+        final UserDto userDto = userUtil.getCurrentUserDto(authHeader);
         final Note note = findByIdOrThrow(this.noteRepository, id, "Note");
         note.setTitle(updateNoteRequest.getTitle());
         note.setBody(updateNoteRequest.getBody());
@@ -64,7 +65,8 @@ public class NoteServiceImpl implements NoteService{
     }
 
     @Override
-    public void deleteNote(final Long id) {
+    public void deleteNote(final String authHeader, final Long id) {
+        final UserDto userDto = userUtil.getCurrentUserDto(authHeader);
         deleteById(this.noteRepository, id, "Note");
     }
 }

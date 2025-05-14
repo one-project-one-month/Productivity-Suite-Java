@@ -9,7 +9,7 @@ import java.util.List;
 public interface NoteService {
     void createNote(final CreateNoteRequest createNoteRequest, final String authHeader);
     List<NoteResponse> retrieveAllByUser(final String authHeader);
-    NoteResponse retrieveOne(final Long id, final String authHeader);
-    void updateNote(final Long id, final UpdateNoteRequest updateNoteRequest);
-    void deleteNote(final Long id);
+    NoteResponse retrieveOne(final String authHeader, final Long id);
+    void updateNote(final UpdateNoteRequest updateNoteRequest, final String authHeader, final Long id);
+    void deleteNote(final String authHeader, final Long id);
 }
