@@ -97,7 +97,7 @@ public class NoteController {
     ) {
         final double requestStartTime = RequestUtils.extractRequestStartTime(request);
 
-        final NoteResponse note = this.noteService.retrieveOne(id, authHeader);
+        final NoteResponse note = this.noteService.retrieveOne(authHeader, id);
 
         final ApiResponse response = ApiResponse.builder()
                 .success(1)
@@ -118,13 +118,14 @@ public class NoteController {
             }
     )
     public ResponseEntity<ApiResponse> updateNote(
+            @RequestHeader("Authorization") final String authHeader,
             @PathVariable final Long id,
             @Validated @RequestBody final UpdateNoteRequest updateNoteRequest,
             final HttpServletRequest request
     ) {
         final double requestStartTime = RequestUtils.extractRequestStartTime(request);
 
-        this.noteService.updateNote(id, updateNoteRequest);
+        this.noteService.updateNote(updateNoteRequest, authHeader, id);
 
         final ApiResponse response = ApiResponse.builder()
                 .success(1)
@@ -145,12 +146,13 @@ public class NoteController {
             }
     )
     public ResponseEntity<ApiResponse> deleteNote(
+            @RequestHeader("Authorization") final String authHeader,
             @PathVariable final Long id,
             final HttpServletRequest request
     ) {
         final double requestStartTime = RequestUtils.extractRequestStartTime(request);
 
-        this.noteService.deleteNote(id);
+        this.noteService.deleteNote(authHeader, id);
 
         final ApiResponse response = ApiResponse.builder()
                 .success(1)
