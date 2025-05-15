@@ -1,6 +1,5 @@
 package com._p1m.productivity_suite.features.categories.service.impl;
 
-import com._p1m.productivity_suite.config.exceptions.UnauthorizedException;
 import com._p1m.productivity_suite.data.enums.CategoryType;
 import com._p1m.productivity_suite.data.models.Category;
 import com._p1m.productivity_suite.data.models.User;
@@ -17,12 +16,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
-import static com._p1m.productivity_suite.config.utils.EntityServiceHelper.*;
-import static com._p1m.productivity_suite.config.utils.PersistenceUtils.*;
-import static com._p1m.productivity_suite.config.utils.RepositoryUtils.*;
-import static com._p1m.productivity_suite.config.utils.AuthorizationUtils.*;
+import com._p1m.productivity_suite.config.utils.PersistenceUtils;
+import com._p1m.productivity_suite.config.utils.RepositoryUtils;
 
 @Service
 @RequiredArgsConstructor
@@ -37,67 +33,65 @@ public class CategoryServiceImpl implements CategoryService {
     public void createCategory(final String authHeader, final CategoryRequest request) {
         final UserDto userDto = this.userUtil.getCurrentUserDto(authHeader);
 
-        final User user = findByIdOrThrow(this.userRepository, userDto.getId(), "User");
+        final User user = RepositoryUtils.findByIdOrThrow(this.userRepository, userDto.getId(), "User");
 
         final Category category = new Category(
-                request.getName(),
-                request.getDescription(),
-                request.getType(),
+                request.name(),
+                request.description(),
+                request.type(),
                 user
         );
-        save(this.categoryRepository, category, "Category");
+        PersistenceUtils.save(this.categoryRepository, category, "Category");
     }
 
     @Override
     public List<CategoryResponse> retrieveAll(final String authHeader) {
         final UserDto userDto = this.userUtil.getCurrentUserDto(authHeader);
         final Sort sortByName = Sort.by(Sort.Direction.ASC, "name");
-        final List<Category> categories = findAllByUserId(userDto.getId(), sortByName, this.categoryRepository::findAllByUserId);
+        final List<Category> categories = RepositoryUtils.findAllByUserId(userDto.getId(), sortByName, this.categoryRepository::findAllByUserId);
         return categories.stream()
                 .map(this::toCategoryResponseWithType)
                 .toList();
     }
 
     @Override
-    public CategoryResponse retrieveOne(final String authHeader, final Long id) {
-        final UserDto userDto = this.userUtil.getCurrentUserDto(authHeader);
-        final Category category = findByIdOrThrow(this.categoryRepository, id, "Category");
-        checkUserAuthorization(userDto, category, (entity, user) -> entity.getUser().getId());
-        return toCategoryResponseWithType(category);
+    public CategoryResponse retrieveOne(final Long id) {
+        final Category category = RepositoryUtils.findByIdOrThrow(this.categoryRepository, id, "Category");
+        return this.toCategoryResponseWithType(category);
     }
 
     @Override
-    public void updateCategory(final String authHeader, final Long id, final CategoryRequest request) {
-        final UserDto userDto = this.userUtil.getCurrentUserDto(authHeader);
-        final Category category = findByIdOrThrow(this.categoryRepository, id, "Category");
-        checkUserAuthorization(userDto, category, (entity, user) -> entity.getUser().getId());
-        category.setName(request.getName());
-        category.setDescription(request.getDescription());
-        category.setType(request.getType());
-        save(this.categoryRepository, category, "Category");
+    public void updateCategory(final Long id, final CategoryRequest request) {
+        final Category category = RepositoryUtils.findByIdOrThrow(this.categoryRepository, id, "Category");
+        category.setName(request.name());
+        category.setDescription(request.description());
+        category.setType(request.type());
+        PersistenceUtils.save(this.categoryRepository, category, "Category");
     }
 
     @Override
-    public void deleteCategory(final String authHeader, final Long id) {
-        final UserDto userDto = this.userUtil.getCurrentUserDto(authHeader);
-        final Category category = findByIdOrThrow(this.categoryRepository, id, "Category");
-        checkUserAuthorization(userDto, category, (entity, user) -> entity.getUser().getId());
-        deleteById(this.categoryRepository, id, "Category");
+    public void deleteCategory(final Long id) {
+        RepositoryUtils.findByIdOrThrow(this.categoryRepository, id, "Category");
+        PersistenceUtils.deleteById(this.categoryRepository, id, "Category");
     }
 
     @Override
-    public void updateStatus(final String authHeader, final Long id, final boolean active) {
-        final UserDto userDto = this.userUtil.getCurrentUserDto(authHeader);
-        final Category category = findByIdOrThrow(this.categoryRepository, id, "Category");
-        checkUserAuthorization(userDto, category, (entity, user) -> entity.getUser().getId());
+    public void updateStatus(final Long id, final boolean active) {
+        final Category category = RepositoryUtils.findByIdOrThrow(this.categoryRepository, id, "Category");
         category.setActive(active);
-        save(this.categoryRepository, category, "Category");
+        PersistenceUtils.save(this.categoryRepository, category, "Category");
     }
 
     private CategoryResponse toCategoryResponseWithType(final Category category) {
-        final CategoryResponse response = map(category, CategoryResponse.class, this.modelMapper);
-        response.setTypeCode(category.getType());
-        response.setTypeValue(CategoryType.fromInt(category.getType()).getCode());
-        return response;
+        return new CategoryResponse(
+                category.getId(),
+                category.getName(),
+                category.getDescription(),
+                category.isActive(),
+                category.getType(),
+                CategoryType.fromInt(category.getType()).getCode(),
+                category.getCreatedAt(),
+                category.getUpdatedAt()
+        );
     }
 }
