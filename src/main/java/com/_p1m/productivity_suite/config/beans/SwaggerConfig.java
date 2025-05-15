@@ -17,8 +17,8 @@ public class SwaggerConfig {
     public OpenAPI openAPI() {
         return new OpenAPI()
                 .info(new Info()
-                        .title("Booking System API")
-                        .description("API Documentation for Booking System")
+                        .title("Productivity Suite API")
+                        .description("API Documentation for Productivity Suite")
                         .version("v1.0.0")
                         .contact(new Contact()
                                 .name("1P1M")
