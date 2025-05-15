@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class PomodoroRequest {
+public class TimerRequest {
 	private Long duration;
 	private Long remainingTime;
 	private boolean resume;
