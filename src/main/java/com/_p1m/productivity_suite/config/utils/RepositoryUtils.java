@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.function.BiFunction;
 
 public class RepositoryUtils {
 
@@ -28,5 +29,16 @@ public class RepositoryUtils {
     public static <T> List<T> findAll(JpaRepository<T, Long> repository) {
         List<T> entities = repository.findAll();
         return entities.isEmpty() ? Collections.emptyList() : entities;
+    }
+
+    /**
+     * Fetches all entities by user ID with optional sorting using a functional repository method.
+     *
+     * @param repositoryMethod a method reference or lambda like (userId, sort) -> repo.findAllByUserId(userId, sort)
+     */
+    public static <T> List<T> findAllByUserId(Long userId, Sort sort,
+                                              BiFunction<Long, Sort, List<T>> repositoryMethod) {
+        List<T> results = repositoryMethod.apply(userId, sort);
+        return results.isEmpty() ? Collections.emptyList() : results;
     }
 }

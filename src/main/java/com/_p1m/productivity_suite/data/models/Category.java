@@ -24,6 +24,13 @@ public class Category implements PersistenceUtils.Identifiable {
     @Column(nullable = false)
     private boolean active;
 
+    @Column(nullable = false)
+    private Integer type;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
     @Column(nullable = false, updatable = false)
     private Long createdAt;
 
@@ -43,8 +50,10 @@ public class Category implements PersistenceUtils.Identifiable {
         this.updatedAt = System.currentTimeMillis();
     }
 
-    public Category(final String name) {
+    public Category(final String name, final Integer type, final User user) {
         this.name = name;
+        this.type = type;
+        this.user = user;
     }
 
     @Override

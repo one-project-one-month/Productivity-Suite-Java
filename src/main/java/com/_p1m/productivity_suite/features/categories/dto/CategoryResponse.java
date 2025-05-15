@@ -11,6 +11,8 @@ public class CategoryResponse {
     private Long id;
     private String name;
     private boolean active;
+    private Integer typeCode;
+    private String typeValue;
     private Long createdAt;
     private Long updatedAt;
 }
