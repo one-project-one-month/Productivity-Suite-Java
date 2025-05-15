@@ -41,6 +41,7 @@ public class CategoryServiceImpl implements CategoryService {
 
         final Category category = new Category(
                 request.getName(),
+                request.getDescription(),
                 request.getType(),
                 user
         );
@@ -71,6 +72,7 @@ public class CategoryServiceImpl implements CategoryService {
         final Category category = findByIdOrThrow(this.categoryRepository, id, "Category");
         checkUserAuthorization(userDto, category, (entity, user) -> entity.getUser().getId());
         category.setName(request.getName());
+        category.setDescription(request.getDescription());
         category.setType(request.getType());
         save(this.categoryRepository, category, "Category");
     }
