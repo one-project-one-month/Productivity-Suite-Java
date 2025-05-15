@@ -22,6 +22,9 @@ public class Category implements PersistenceUtils.Identifiable {
     private String name;
 
     @Column(nullable = false)
+    private String description;
+
+    @Column(nullable = false)
     private boolean active;
 
     @Column(nullable = false)
@@ -50,8 +53,9 @@ public class Category implements PersistenceUtils.Identifiable {
         this.updatedAt = System.currentTimeMillis();
     }
 
-    public Category(final String name, final Integer type, final User user) {
+    public Category(final String name, final String description, final Integer type, final User user) {
         this.name = name;
+        this.description = description;
         this.type = type;
         this.user = user;
     }
