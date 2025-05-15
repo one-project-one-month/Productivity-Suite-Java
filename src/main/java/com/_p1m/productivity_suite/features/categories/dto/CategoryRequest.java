@@ -14,5 +14,8 @@ public class CategoryRequest {
     private String name;
 
     @ValidCategoryType
+    private String description;
+
+    @ValidCategoryType
     private Integer type;
 }
