@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import static com._p1m.productivity_suite.config.utils.AuthorizationUtils.checkUserAuthorization;
 import static com._p1m.productivity_suite.config.utils.EntityServiceHelper.*;
 import static com._p1m.productivity_suite.config.utils.PersistenceUtils.*;
 import static com._p1m.productivity_suite.config.utils.RepositoryUtils.*;
@@ -38,14 +39,15 @@ public class NoteServiceImpl implements NoteService{
                 .body(createNoteRequest.getBody())
                 .user(user)
                 .build();
+
         save(this.noteRepository, note, "Note");
     }
 
     @Override
     public List<NoteResponse> retrieveAllByUser(final String authHeader) {
-        final UserDto userDto = userUtil.getCurrentUserDto(authHeader);
+        final UserDto userDto = this.userUtil.getCurrentUserDto(authHeader);
         final Sort sortByUpdatedAt = Sort.by(Sort.Direction.DESC, "updatedAt");
-        final List<Note> notes = this.noteRepository.findAllByUserId(userDto.getId(), sortByUpdatedAt);
+        final List<Note> notes = findAllByUserId(userDto.getId(), sortByUpdatedAt, this.noteRepository::findAllByUserId);
         return mapList(notes, NoteResponse.class, this.modelMapper);
     }
 
@@ -54,9 +56,7 @@ public class NoteServiceImpl implements NoteService{
         final UserDto userDto = userUtil.getCurrentUserDto(authHeader);
         final Note note = findByIdOrThrow(this.noteRepository, id, "Note");
 
-        if (!note.getUser().getId().equals(userDto.getId())) {
-            throw new UnauthorizedException("You are not authorized to update this note.");
-        }
+        checkUserAuthorization(userDto, note, (entity, user) -> entity.getUser().getId());
 
         return map(note, NoteResponse.class, this.modelMapper);
     }
@@ -66,9 +66,7 @@ public class NoteServiceImpl implements NoteService{
         final UserDto userDto = userUtil.getCurrentUserDto(authHeader);
         final Note note = findByIdOrThrow(this.noteRepository, id, "Note");
 
-        if (!note.getUser().getId().equals(userDto.getId())) {
-            throw new UnauthorizedException("You are not authorized to update this note.");
-        }
+        checkUserAuthorization(userDto, note, (entity, user) -> entity.getUser().getId());
 
         note.setTitle(updateNoteRequest.getTitle());
         note.setBody(updateNoteRequest.getBody());
@@ -80,9 +78,7 @@ public class NoteServiceImpl implements NoteService{
         final UserDto userDto = userUtil.getCurrentUserDto(authHeader);
         final Note note = findByIdOrThrow(this.noteRepository, id, "Note");
 
-        if (!note.getUser().getId().equals(userDto.getId())) {
-            throw new UnauthorizedException("You are not authorized to update this note.");
-        }
+        checkUserAuthorization(userDto, note, (entity, user) -> entity.getUser().getId());
 
         deleteById(this.noteRepository, id, "Note");
     }
