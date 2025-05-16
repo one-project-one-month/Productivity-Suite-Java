@@ -1,18 +1,12 @@
 package com._p1m.productivity_suite.features.categories.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class CategoryResponse {
-    private Long id;
-    private String name;
-    private boolean active;
-    private Integer typeCode;
-    private String typeValue;
-    private Long createdAt;
-    private Long updatedAt;
-}
+public record CategoryResponse(
+        Long id,
+        String name,
+        String description,
+        boolean active,
+        Integer typeCode,
+        String typeValue,
+        Long createdAt,
+        Long updatedAt
+) {}
