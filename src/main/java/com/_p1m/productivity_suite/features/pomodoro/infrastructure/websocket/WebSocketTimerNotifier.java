@@ -1,14 +1,14 @@
-package com._p1m.productivity_suite.features.timer.infrastructure.websocket;
+package com._p1m.productivity_suite.features.pomodoro.infrastructure.websocket;
 
 import org.springframework.stereotype.Component;
 
-import com._p1m.productivity_suite.features.timer.domain.notification.TimerNotifier;
+import com._p1m.productivity_suite.features.pomodoro.domain.notification.PomodoroNotifier;
 
 import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-public class WebSocketTimerNotifier implements TimerNotifier{
+public class WebSocketTimerNotifier implements PomodoroNotifier{
 	private final WebSocketResponseSender responseSender;
 	@Override
 	public void notifyTick(String user, long timeLeft) {

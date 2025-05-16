@@ -1,4 +1,4 @@
-package com._p1m.productivity_suite.features.timer.domain.session;
+package com._p1m.productivity_suite.features.pomodoro.domain.session;
 
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;

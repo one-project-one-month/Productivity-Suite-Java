@@ -27,7 +27,11 @@ public class Sequence implements PersistenceUtils.Identifiable {
 
     @Column(name = "updated_at", nullable = false)
     private Long updatedAt;
-
+    
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
+    
     @PrePersist
     protected void onCreate() {
         long now = System.currentTimeMillis();
