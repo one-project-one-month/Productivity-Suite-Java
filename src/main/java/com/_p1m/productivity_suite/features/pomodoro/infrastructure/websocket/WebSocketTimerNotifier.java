@@ -2,6 +2,7 @@ package com._p1m.productivity_suite.features.pomodoro.infrastructure.websocket;
 
 import org.springframework.stereotype.Component;
 
+import com._p1m.productivity_suite.data.enums.PomodoroActionType;
 import com._p1m.productivity_suite.features.pomodoro.domain.notification.PomodoroNotifier;
 
 import lombok.RequiredArgsConstructor;
@@ -11,13 +12,13 @@ import lombok.RequiredArgsConstructor;
 public class WebSocketTimerNotifier implements PomodoroNotifier{
 	private final WebSocketResponseSender responseSender;
 	@Override
-	public void notifyTick(String user, long timeLeft) {
-		responseSender.send(user, "Tick", String.valueOf(timeLeft));
+	public void notifyTick(String user, String timeLeft,Long timerId) {
+		responseSender.send(user, PomodoroActionType.TICK, timeLeft,timerId);
 	}
 
 	@Override
-	public void notifyComplete(String user) {
-		responseSender.send(user, "Complete", "0");
+	public void notifyComplete(String user,Long timerId) {
+		responseSender.send(user, PomodoroActionType.COMPLETE, "0",timerId);
 	}
 
 }

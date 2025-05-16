@@ -10,79 +10,115 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.springframework.stereotype.Service;
 
+import com._p1m.productivity_suite.data.enums.PomodoroActionType;
+import com._p1m.productivity_suite.data.models.Sequence;
+import com._p1m.productivity_suite.data.models.Timer;
 import com._p1m.productivity_suite.features.pomodoro.domain.notification.PomodoroNotifier;
 import com._p1m.productivity_suite.features.pomodoro.domain.session.PomodoroSession;
-import com._p1m.productivity_suite.features.pomodoro.dto.PomodoroRequest;
 import com._p1m.productivity_suite.features.pomodoro.dto.PomodoroResponse;
+import com._p1m.productivity_suite.features.pomodoro.dto.PomodoroResumeRequest;
+import com._p1m.productivity_suite.features.pomodoro.dto.PomodoroStartRequest;
 import com._p1m.productivity_suite.features.pomodoro.service.PomodoroService;
 import com._p1m.productivity_suite.features.sequence.service.SequenceService;
+import com._p1m.productivity_suite.features.timer.service.TimerService;
+import com._p1m.productivity_suite.features.timerSequence.service.TimerSequenceService;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class PomodoroServiceImpl implements PomodoroService {
 	private final SequenceService sequenceService;
+	private final TimerService timerService;
+	private final TimerSequenceService timerSequenceService;
 	private final Map<String, PomodoroSession> runningTasks = new ConcurrentHashMap<>();
 	private final PomodoroNotifier pomodoroNotifier;
+
 	@Override
-	public PomodoroResponse timerStart(String user, PomodoroRequest pomodoroRequest,String token) {
+	public PomodoroResponse timerStart(String user, PomodoroStartRequest request, String token) {
 		if (runningTasks.containsKey(user)) {
 			return new PomodoroResponse();
 		}
-		
-		AtomicLong timeLeft = new AtomicLong(
-				(pomodoroRequest.isResume()) ? pomodoroRequest.getRemainingTime() : pomodoroRequest.getDuration());
+		Sequence sequence = sequenceService.createSequence(token, request.getSequenceRequest());
+		Timer timer = timerService.createTimer(token, request.getTimerRequest());
+		timerSequenceService.createTimerSequence(sequence, timer, request.getTimerSequenceRequest());
+		return startCountdown(user, timer.getId(), timer.getDuration(), sequence.getId());
+	}
 
-		ScheduledExecutorService userExecutor = Executors.newSingleThreadScheduledExecutor();
+	@Override
+	public PomodoroResponse timerResume(String user, PomodoroResumeRequest request) {
+		PomodoroSession existingSession = runningTasks.get(user);
+		if (existingSession != null) {
+			existingSession.getTask().cancel(false);
+			existingSession.getExecutor().shutdown();
+			runningTasks.remove(user);
+		}
+		return startCountdown(user, request.getTimerId(), request.getRemainingTime(), null);
+	}
 
-		ScheduledFuture<?> task = userExecutor.scheduleAtFixedRate(() -> {
+	@Override
+	public PomodoroResponse timerStop(String user) {
+		PomodoroSession session = runningTasks.get(user);
+		if (session != null) {
+			session.getTask().cancel(false);
+			session.getExecutor().shutdown();
+			long remainingTime = session.getRemainingTime().get();
+			log.info("Stop to timer id {}", session.getTimerId());
+			Timer timer = timerService.updateRemainingTime(session.getTimerId(), remainingTime);
+
+			return new PomodoroResponse(PomodoroActionType.STOP, formatTime(remainingTime), timer.getId());
+		}
+		return new PomodoroResponse();
+	}
+
+	@Override
+	public PomodoroResponse timerReset(String user) {
+		PomodoroSession session = runningTasks.get(user);
+		if (session != null) {
+			session.getTask().cancel(false);
+			session.getExecutor().shutdown();
+			Timer timer = timerService.resetRemainingTime(session.getTimerId());
+			log.info("Remaining time after reset {}", timer.getRemainingTime());
+			session.getRemainingTime().set(timer.getDuration());
+			return new PomodoroResponse(PomodoroActionType.RESET, formatTime(timer.getRemainingTime()),
+					timer.getId());
+		}
+		return new PomodoroResponse();
+	}
+
+	@Override
+	public void deactivatePomodoroSession(String user) {
+		timerStop(user);
+		runningTasks.remove(user);
+	}
+
+	private PomodoroResponse startCountdown(String user, Long timerId, long timeLeftSeconds, Long sequenceId) {
+		AtomicLong timeLeft = new AtomicLong(timeLeftSeconds);
+		ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+
+		ScheduledFuture<?> task = executor.scheduleAtFixedRate(() -> {
 			long current = timeLeft.decrementAndGet();
 			if (current > 0) {
-				pomodoroNotifier.notifyTick(user, current);
+				pomodoroNotifier.notifyTick(user, formatTime(current), timerId);
 			} else {
-				pomodoroNotifier.notifyComplete(user);
+				pomodoroNotifier.notifyComplete(user, timerId);
 				PomodoroSession session = runningTasks.remove(user);
-				if (session != null && session.getTask() != null) {
+				if (session != null) {
 					session.getTask().cancel(false);
 					session.getExecutor().shutdown();
 				}
 			}
 		}, 0, 1, TimeUnit.SECONDS);
 
-		runningTasks.put(user, new PomodoroSession(userExecutor, task, timeLeft));
-		return new PomodoroResponse("Tick", String.valueOf(timeLeft.get()));
+		runningTasks.put(user, new PomodoroSession(executor, task, timeLeft, timerId, sequenceId));
+		return new PomodoroResponse(PomodoroActionType.TICK, formatTime(timeLeft.get()), timerId);
 	}
 
-	@Override
-	public void timerReset(String user) {
-		// TODO Auto-generated method stub
-		
+	private String formatTime(long totalSeconds) {
+		long minutes = totalSeconds / 60;
+		long seconds = totalSeconds % 60;
+		return String.format("%02d:%02d", minutes, seconds);
 	}
-
-	@Override
-	public PomodoroResponse timerStop(String user) {
-		PomodoroSession session = runningTasks.remove(user);
-		if (session != null) {
-			session.getTask().cancel(false);
-			session.getExecutor().shutdown();
-			long remainingTime = session.getRemainingTime().get();
-			return new PomodoroResponse("Stop", String.valueOf(remainingTime));
-		}else {
-			return new PomodoroResponse();
-		}
-	}
-//
-//	@Override
-//	public void timerReset(Principal principal) {
-//		String user = principal.getName();
-//
-//		PomodoroSession session = runningTasks.remove(user);
-//		if (session != null) {
-//			session.getTask().cancel(false);
-//		}
-//
-//		messagingTemplate.convertAndSendToUser(user, "/queue/pomodoro", "Pomodoro reset to 60 seconds.");
-//	}
-
 }
