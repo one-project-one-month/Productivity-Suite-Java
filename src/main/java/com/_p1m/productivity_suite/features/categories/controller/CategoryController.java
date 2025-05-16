@@ -1,5 +1,6 @@
 package com._p1m.productivity_suite.features.categories.controller;
 
+import com._p1m.productivity_suite.config.annotations.AuthorizationCheck;
 import com._p1m.productivity_suite.config.request.RequestUtils;
 import com._p1m.productivity_suite.features.categories.dto.CategoryRequest;
 import com._p1m.productivity_suite.features.categories.dto.CategoryResponse;
@@ -81,6 +82,7 @@ public class CategoryController {
         return ResponseUtils.buildResponse(request, response, requestStartTime);
     }
 
+    @AuthorizationCheck(resource = "CATEGORY", idParam = "id")
     @GetMapping("/{id}")
     @Operation(
             summary = "Retrieve a category by ID",
@@ -92,12 +94,11 @@ public class CategoryController {
     )
     public ResponseEntity<ApiResponse> retrieveCategoryById(
             @PathVariable final Long id,
-            final HttpServletRequest request,
-            @RequestHeader(value = "Authorization") final String authHeader
+            final HttpServletRequest request
     ) {
         final double requestStartTime = RequestUtils.extractRequestStartTime(request);
 
-        final CategoryResponse category = this.categoryService.retrieveOne(authHeader, id);
+        final CategoryResponse category = this.categoryService.retrieveOne(id);
 
         final ApiResponse response = ApiResponse.builder()
                 .success(1)
@@ -109,6 +110,7 @@ public class CategoryController {
         return ResponseUtils.buildResponse(request, response, requestStartTime);
     }
 
+    @AuthorizationCheck(resource = "CATEGORY", idParam = "id")
     @PutMapping("/{id}")
     @Operation(
             summary = "Update a category",
@@ -121,12 +123,11 @@ public class CategoryController {
     public ResponseEntity<ApiResponse> updateCategory(
             @PathVariable final Long id,
             @Validated @RequestBody final CategoryRequest categoryRequest,
-            final HttpServletRequest request,
-            @RequestHeader(value = "Authorization") final String authHeader
+            final HttpServletRequest request
     ) {
         final double requestStartTime = RequestUtils.extractRequestStartTime(request);
 
-        this.categoryService.updateCategory(authHeader, id, categoryRequest);
+        this.categoryService.updateCategory(id, categoryRequest);
 
         final ApiResponse response = ApiResponse.builder()
                 .success(1)
@@ -137,6 +138,7 @@ public class CategoryController {
         return ResponseUtils.buildResponse(request, response, requestStartTime);
     }
 
+    @AuthorizationCheck(resource = "CATEGORY", idParam = "id")
     @DeleteMapping("/{id}")
     @Operation(
             summary = "Delete a category",
@@ -148,12 +150,11 @@ public class CategoryController {
     )
     public ResponseEntity<ApiResponse> deleteCategory(
             @PathVariable final Long id,
-            final HttpServletRequest request,
-            @RequestHeader(value = "Authorization") final String authHeader
+            final HttpServletRequest request
     ) {
         final double requestStartTime = RequestUtils.extractRequestStartTime(request);
 
-        this.categoryService.deleteCategory(authHeader, id);
+        this.categoryService.deleteCategory(id);
 
         final ApiResponse response = ApiResponse.builder()
                 .success(1)
@@ -164,6 +165,7 @@ public class CategoryController {
         return ResponseUtils.buildResponse(request, response, requestStartTime);
     }
 
+    @AuthorizationCheck(resource = "CATEGORY", idParam = "id")
     @PatchMapping("/{id}/status")
     @Operation(
             summary = "Update category status",
@@ -176,12 +178,11 @@ public class CategoryController {
     public ResponseEntity<ApiResponse> updateCategoryStatus(
             @PathVariable final Long id,
             @RequestBody final CategoryStatusUpdateRequest statusRequest,
-            final HttpServletRequest request,
-            @RequestHeader(value = "Authorization") final String authHeader
+            final HttpServletRequest request
     ) {
         final double requestStartTime = RequestUtils.extractRequestStartTime(request);
 
-        this.categoryService.updateStatus(authHeader, id, statusRequest.isActive());
+        this.categoryService.updateStatus(id, statusRequest.isActive());
 
         final ApiResponse response = ApiResponse.builder()
                 .success(1)
