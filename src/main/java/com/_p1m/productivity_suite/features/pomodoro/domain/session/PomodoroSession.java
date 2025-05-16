@@ -6,11 +6,14 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 @Getter
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class PomodoroSession {
-	ScheduledExecutorService executor;
-	ScheduledFuture<?> task;
-	AtomicLong remainingTime;
+	private final ScheduledExecutorService executor;
+	private final ScheduledFuture<?> task;
+	private final AtomicLong remainingTime;
+	private final Long timerId;
+	private final Long sequenceId;
 }

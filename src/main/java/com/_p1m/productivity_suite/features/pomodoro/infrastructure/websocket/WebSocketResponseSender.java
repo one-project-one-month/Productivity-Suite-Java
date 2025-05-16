@@ -4,6 +4,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 
 import com._p1m.productivity_suite.config.response.dto.WebSocketResponse;
+import com._p1m.productivity_suite.data.enums.PomodoroActionType;
 import com._p1m.productivity_suite.features.pomodoro.dto.PomodoroResponse;
 
 import lombok.RequiredArgsConstructor;
@@ -15,12 +16,12 @@ public class WebSocketResponseSender {
 
 	private final SimpMessagingTemplate messagingTemplate;
 
-	public void send(String user, String type, String remainingTime) {
+	public void send(String user, PomodoroActionType type, String remainingTime,Long timerId) {
 		
 		WebSocketResponse response = WebSocketResponse.builder()
 			.success(1)
 			.code(200)
-			.data(new PomodoroResponse(type, remainingTime))
+			.data(new PomodoroResponse(type, remainingTime,timerId))
 			.build();
 
 		messagingTemplate.convertAndSendToUser(user, POMODORO_ROUTE, response);
