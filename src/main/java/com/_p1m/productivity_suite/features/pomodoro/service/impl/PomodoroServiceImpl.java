@@ -41,9 +41,9 @@ public class PomodoroServiceImpl implements PomodoroService {
 		if (runningTasks.containsKey(user)) {
 			return new PomodoroResponse();
 		}
-		Sequence sequence = sequenceService.createSequence(token, request.getSequenceRequest());
-		Timer timer = timerService.createTimer(token, request.getTimerRequest());
-		timerSequenceService.createTimerSequence(sequence, timer, request.getTimerSequenceRequest());
+		Sequence sequence = sequenceService.createSequence(token, request.sequenceRequest());
+		Timer timer = timerService.createTimer(token, request.timerRequest());
+		timerSequenceService.createTimerSequence(sequence, timer, request.timerSequenceRequest());
 		return startCountdown(user, timer.getId(), timer.getDuration(), sequence.getId());
 	}
 
@@ -51,8 +51,8 @@ public class PomodoroServiceImpl implements PomodoroService {
 	public PomodoroResponse timerResume(String user, PomodoroResumeRequest request) {
 		PomodoroSession existingSession = runningTasks.get(user);
 		if (existingSession != null) {
-			existingSession.getTask().cancel(false);
-			existingSession.getExecutor().shutdown();
+			existingSession.task().cancel(false);
+			existingSession.executor().shutdown();
 			runningTasks.remove(user);
 		}
 		return startCountdown(user, request.getTimerId(), request.getRemainingTime(), null);
@@ -62,12 +62,11 @@ public class PomodoroServiceImpl implements PomodoroService {
 	public PomodoroResponse timerStop(String user) {
 		PomodoroSession session = runningTasks.get(user);
 		if (session != null) {
-			session.getTask().cancel(false);
-			session.getExecutor().shutdown();
-			long remainingTime = session.getRemainingTime().get();
-			log.info("Stop to timer id {}", session.getTimerId());
-			Timer timer = timerService.updateRemainingTime(session.getTimerId(), remainingTime);
-
+			session.task().cancel(false);
+			session.executor().shutdown();
+			long remainingTime = session.remainingTime().get();
+			log.info("Stop to timer id {}", session.timerId());
+			Timer timer = timerService.updateRemainingTime(session.timerId(), remainingTime);
 			return new PomodoroResponse(PomodoroActionType.STOP, formatTime(remainingTime), timer.getId());
 		}
 		return new PomodoroResponse();
@@ -77,11 +76,11 @@ public class PomodoroServiceImpl implements PomodoroService {
 	public PomodoroResponse timerReset(String user) {
 		PomodoroSession session = runningTasks.get(user);
 		if (session != null) {
-			session.getTask().cancel(false);
-			session.getExecutor().shutdown();
-			Timer timer = timerService.resetRemainingTime(session.getTimerId());
+			session.task().cancel(false);
+			session.executor().shutdown();
+			Timer timer = timerService.resetRemainingTime(session.timerId());
 			log.info("Remaining time after reset {}", timer.getRemainingTime());
-			session.getRemainingTime().set(timer.getDuration());
+			session.remainingTime().set(timer.getDuration());
 			return new PomodoroResponse(PomodoroActionType.RESET, formatTime(timer.getRemainingTime()),
 					timer.getId());
 		}
@@ -106,8 +105,8 @@ public class PomodoroServiceImpl implements PomodoroService {
 				pomodoroNotifier.notifyComplete(user, timerId);
 				PomodoroSession session = runningTasks.remove(user);
 				if (session != null) {
-					session.getTask().cancel(false);
-					session.getExecutor().shutdown();
+					session.task().cancel(false);
+					session.executor().shutdown();
 				}
 			}
 		}, 0, 1, TimeUnit.SECONDS);
