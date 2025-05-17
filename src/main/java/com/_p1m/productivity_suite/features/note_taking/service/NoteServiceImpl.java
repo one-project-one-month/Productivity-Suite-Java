@@ -1,6 +1,7 @@
 package com._p1m.productivity_suite.features.note_taking.service;
 
-import com._p1m.productivity_suite.config.exceptions.UnauthorizedException;
+import com._p1m.productivity_suite.config.utils.PersistenceUtils;
+import com._p1m.productivity_suite.config.utils.RepositoryUtils;
 import com._p1m.productivity_suite.data.models.Note;
 import com._p1m.productivity_suite.data.models.User;
 import com._p1m.productivity_suite.features.note_taking.dto.CreateNoteRequest;
@@ -17,11 +18,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-import static com._p1m.productivity_suite.config.utils.AuthorizationUtils.checkUserAuthorization;
-import static com._p1m.productivity_suite.config.utils.EntityServiceHelper.*;
-import static com._p1m.productivity_suite.config.utils.PersistenceUtils.*;
-import static com._p1m.productivity_suite.config.utils.RepositoryUtils.*;
-
 @Service
 @RequiredArgsConstructor
 public class NoteServiceImpl implements NoteService{
@@ -32,54 +28,59 @@ public class NoteServiceImpl implements NoteService{
 
     @Override
     public void createNote(final CreateNoteRequest createNoteRequest, final String authHeader) {
-        final UserDto userDto = userUtil.getCurrentUserDto(authHeader);
-        final User user = findByIdOrThrow(this.userRepository, userDto.getId(), "User");
-        final Note note = Note.builder()
-                .title(createNoteRequest.getTitle())
-                .body(createNoteRequest.getBody())
-                .user(user)
-                .build();
+        final UserDto userDto = this.userUtil.getCurrentUserDto(authHeader);
 
-        save(this.noteRepository, note, "Note");
+        final User user = RepositoryUtils.findByIdOrThrow(this.userRepository, userDto.getId(), "User");
+
+        final Note note = new Note(
+                createNoteRequest.title(),
+                createNoteRequest.body(),
+                user
+        );
+
+        PersistenceUtils.save(this.noteRepository, note, "Note");
     }
 
     @Override
-    public List<NoteResponse> retrieveAllByUser(final String authHeader) {
+    public List<NoteResponse> retrieveAll(final String authHeader) {
         final UserDto userDto = this.userUtil.getCurrentUserDto(authHeader);
         final Sort sortByUpdatedAt = Sort.by(Sort.Direction.DESC, "updatedAt");
-        final List<Note> notes = findAllByUserId(userDto.getId(), sortByUpdatedAt, this.noteRepository::findAllByUserId);
-        return mapList(notes, NoteResponse.class, this.modelMapper);
+        final List<Note> notes = RepositoryUtils.findAllByUserId(userDto.getId(), sortByUpdatedAt, this.noteRepository::findAllByUserId);
+        return notes.stream()
+                .map(this::toNoteResponseWithType)
+                .toList();
     }
 
     @Override
-    public NoteResponse retrieveOne(final String authHeader, final Long id) {
-        final UserDto userDto = userUtil.getCurrentUserDto(authHeader);
-        final Note note = findByIdOrThrow(this.noteRepository, id, "Note");
+    public NoteResponse retrieveOne(final Long id) {
+        final Note note = RepositoryUtils.findByIdOrThrow(this.noteRepository, id, "Note");
 
-        checkUserAuthorization(userDto, note, (entity, user) -> entity.getUser().getId());
-
-        return map(note, NoteResponse.class, this.modelMapper);
+        return this.toNoteResponseWithType(note);
     }
 
     @Override
-    public void updateNote(final UpdateNoteRequest updateNoteRequest, final String authHeader, final Long id) {
-        final UserDto userDto = userUtil.getCurrentUserDto(authHeader);
-        final Note note = findByIdOrThrow(this.noteRepository, id, "Note");
-
-        checkUserAuthorization(userDto, note, (entity, user) -> entity.getUser().getId());
+    public void updateNote(final UpdateNoteRequest updateNoteRequest, final Long id) {
+        final Note note = RepositoryUtils.findByIdOrThrow(this.noteRepository, id, "Note");
 
         note.setTitle(updateNoteRequest.getTitle());
         note.setBody(updateNoteRequest.getBody());
-        save(this.noteRepository, note, "Note");
+        PersistenceUtils.save(this.noteRepository, note, "Note");
     }
 
     @Override
-    public void deleteNote(final String authHeader, final Long id) {
-        final UserDto userDto = userUtil.getCurrentUserDto(authHeader);
-        final Note note = findByIdOrThrow(this.noteRepository, id, "Note");
+    public void deleteNote(final Long id) {
+        RepositoryUtils.findByIdOrThrow(this.noteRepository, id, "Note");
 
-        checkUserAuthorization(userDto, note, (entity, user) -> entity.getUser().getId());
+        PersistenceUtils.deleteById(this.noteRepository, id, "Note");
+    }
 
-        deleteById(this.noteRepository, id, "Note");
+    private NoteResponse toNoteResponseWithType(final Note note) {
+        return new NoteResponse(
+                note.getId(),
+                note.getTitle(),
+                note.getBody(),
+                note.getCreatedAt(),
+                note.getUpdatedAt()
+        );
     }
 }

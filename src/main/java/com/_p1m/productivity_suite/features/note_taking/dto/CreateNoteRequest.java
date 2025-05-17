@@ -1,13 +1,9 @@
 package com._p1m.productivity_suite.features.note_taking.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com._p1m.productivity_suite.config.annotations.ValidNoteBody;
+import com._p1m.productivity_suite.config.annotations.ValidNoteTitle;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class CreateNoteRequest {
-    private String title;
-    private String body;
-}
+public record CreateNoteRequest (
+    @ValidNoteTitle String title,
+    @ValidNoteBody String body
+) {}
