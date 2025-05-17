@@ -21,7 +21,7 @@ public class TimerSequenceServiceImpl implements TimerSequenceService{
 		final TimerSequence timerSeq = TimerSequence.builder()
 				.sequence(sequence)
 				.timer(timer)
-				.step(timerSequenceRequest.getStep())
+				.step(timerSequenceRequest.step())
 				.build();
 		PersistenceUtils.save(this.timerSequenceRepository, timerSeq, "TimerSequence");
 	}

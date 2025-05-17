@@ -10,11 +10,11 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 public class PomodoroTimerDeserializer extends JsonDeserializer<Long> {
 
     @Override
-    public Long deserialize(JsonParser parser, DeserializationContext context) throws IOException {
-        JsonToken token = parser.currentToken();
+    public Long deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+        JsonToken token = p.currentToken();
 
         if (token == JsonToken.VALUE_STRING) {
-            String timeString = parser.getText().trim();
+            String timeString = p.getText().trim();
 
             if (!timeString.matches("\\d{1,2}:\\d{2}")) {
                 throw new IllegalArgumentException("Invalid time format. Expected MM:ss");
@@ -27,7 +27,7 @@ public class PomodoroTimerDeserializer extends JsonDeserializer<Long> {
             return (minutes * 60L + seconds);
 
         } else if (token == JsonToken.VALUE_NUMBER_INT) {
-            return parser.getLongValue(); 
+            return p.getLongValue(); 
         }
 
         throw new IllegalArgumentException("Invalid input for remainingTime: expected MM:ss or numeric seconds.");

@@ -13,12 +13,12 @@ public class WebSocketTimerNotifier implements PomodoroNotifier{
 	private final WebSocketResponseSender responseSender;
 	@Override
 	public void notifyTick(String user, String timeLeft,Long timerId) {
-		responseSender.send(user, PomodoroActionType.TICK, timeLeft,timerId);
+		responseSender.send(user, PomodoroActionType.TICK.getValue(), timeLeft,timerId);
 	}
 
 	@Override
 	public void notifyComplete(String user,Long timerId) {
-		responseSender.send(user, PomodoroActionType.COMPLETE, "0",timerId);
+		responseSender.send(user, PomodoroActionType.COMPLETE.getValue(), "0",timerId);
 	}
 
 }
