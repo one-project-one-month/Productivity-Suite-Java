@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
+
 @Data
 @Entity
 @Builder
@@ -22,6 +24,10 @@ public class Currency {
 
     @Column(name = "active",nullable = false)
     private boolean active;
+
+    @ManyToMany
+    @JoinColumn(name = "user_id")
+    private List<User> user;
 
     @Column(nullable = false, updatable = false)
     private Long createdAt;
