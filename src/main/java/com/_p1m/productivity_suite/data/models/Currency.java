@@ -17,10 +17,10 @@ public class Currency {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(name = "name",nullable = false)
     private String name;
 
-    @Column(nullable = false)
+    @Column(name = "active",nullable = false)
     private boolean active;
 
     @Column(nullable = false, updatable = false)
