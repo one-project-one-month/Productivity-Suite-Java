@@ -46,6 +46,12 @@ public class Note implements PersistenceUtils.Identifiable {
         this.updatedAt = System.currentTimeMillis();
     }
 
+    public Note(final String title, final String body, final User user){
+        this.title = title;
+        this.body = body;
+        this.user = user;
+    }
+
     @Override
     public Long getId() {
         return id;
