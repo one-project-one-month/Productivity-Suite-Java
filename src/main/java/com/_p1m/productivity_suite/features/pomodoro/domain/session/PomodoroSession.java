@@ -4,16 +4,10 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.atomic.AtomicLong;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-
-@Getter
-@RequiredArgsConstructor
-public class PomodoroSession {
-	private final ScheduledExecutorService executor;
-	private final ScheduledFuture<?> task;
-	private final AtomicLong remainingTime;
-	private final Long timerId;
-	private final Long sequenceId;
-}
+public record PomodoroSession(
+		ScheduledExecutorService executor,
+		ScheduledFuture<?> task,
+		AtomicLong remainingTime,
+	  	Long timerId,
+		Long sequenceId
+) {}
