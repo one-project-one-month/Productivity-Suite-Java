@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 @Documented
 @JsonDeserialize(using=PomodoroTimerDeserializer.class)
-@Target({ElementType.FIELD})
+@Target({ElementType.FIELD,ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
 @JacksonAnnotationsInside
 public @interface PomodoroTimerFormat {

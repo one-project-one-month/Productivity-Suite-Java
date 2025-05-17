@@ -16,7 +16,7 @@ public class WebSocketResponseSender {
 
 	private final SimpMessagingTemplate messagingTemplate;
 
-	public void send(String user, PomodoroActionType type, String remainingTime,Long timerId) {
+	public void send(String user, Integer type, String remainingTime,Long timerId) {
 		
 		WebSocketResponse response = WebSocketResponse.builder()
 			.success(1)

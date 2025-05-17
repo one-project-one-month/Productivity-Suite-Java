@@ -28,27 +28,27 @@ public class PomodoroController {
 		String user = principal.getName();
 		String token = (String) accessor.getSessionAttributes().get("token");
 		PomodoroResponse response = pomodoroService.timerStart(user, request,token);
-		responseSender.send(user, response.getType(), response.getRemainingTime(),response.getTimerId());
+		responseSender.send(user, response.type(), response.remainingTime(),response.timerId());
 	}
 	
 	@MessageMapping("/pomodoro/resume")
 	public void startPomodoro(Principal principal, @Payload PomodoroResumeRequest request,SimpMessageHeaderAccessor accessor) {
 		String user = principal.getName();
 		PomodoroResponse response = pomodoroService.timerResume(user, request);
-		responseSender.send(user, response.getType(), response.getRemainingTime(),response.getTimerId());
+		responseSender.send(user, response.type(), response.remainingTime(),response.timerId());
 	}
 
 	@MessageMapping("/pomodoro/stop")
 	public void stopPomodoro(Principal principal) {
 		String user = principal.getName();
 		PomodoroResponse response = pomodoroService.timerStop(user);
-		responseSender.send(user, response.getType(), response.getRemainingTime(),response.getTimerId());
+		responseSender.send(user, response.type(), response.remainingTime(),response.timerId());
 	}
 	@MessageMapping("/pomodoro/reset")
 	public void resetPomodoro(Principal principal) {
 		String user = principal.getName();
 		PomodoroResponse response = pomodoroService.timerReset(user);
-		responseSender.send(user, response.getType(), response.getRemainingTime(),response.getTimerId());
+		responseSender.send(user, response.type(), response.remainingTime(),response.timerId());
 	}
 	
 }

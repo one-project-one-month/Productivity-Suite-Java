@@ -18,9 +18,9 @@ public class TimerServiceImpl implements TimerService{
 	@Override
 	public Timer createTimer(final String authHeader, final TimerRequest timerRequest) {
 		Timer timer = Timer.builder()
-                .duration(timerRequest.getDuration())
-                .remainingTime(timerRequest.getRemainingTime())
-                .timerType(timerRequest.getTimerType())
+                .duration(timerRequest.duration())
+                .remainingTime(timerRequest.remainingTime())
+                .timerType(timerRequest.timerType())
                 .build();
 		PersistenceUtils.save(this.timerRepository, timer, "Timer");
 		return timer;
