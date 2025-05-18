@@ -84,13 +84,14 @@ public class PomodoroWebSocketServiceImpl implements PomodoroWebSocketService {
 			long remainingTime = session.remainingTime().get();
 			log.info("Stop to timer id {}", session.timerId());
 			Timer timer = timerService.updateRemainingTime(session.timerId(), remainingTime);
-			return PomodoroWebSocketResponse.of(PomodoroActionType.STOP, formatTime(remainingTime), timer.getId());
+			return PomodoroWebSocketResponse.of(PomodoroActionType.STOP, formatTime(remainingTime), timer.getId(),
+					session.sequenceId());
 		}
 		return PomodoroWebSocketResponse.invalid("Currently, no time is running.");
 	}
 
 	@Override
-	public PomodoroWebSocketResponse timerReset(String user,PomodoroResetRequest request) {
+	public PomodoroWebSocketResponse timerReset(String user, PomodoroResetRequest request) {
 		PomodoroSession session = runningTasks.get(user);
 		if (session != null) {
 			session.task().cancel(false);
@@ -98,19 +99,24 @@ public class PomodoroWebSocketServiceImpl implements PomodoroWebSocketService {
 			log.info("Remaining time after reset: {}", timer.getRemainingTime());
 			session.remainingTime().set(timer.getDuration());
 			return PomodoroWebSocketResponse.of(PomodoroActionType.RESET, formatTime(timer.getRemainingTime()),
-					timer.getId());
-		}else {
-			log.info("Requesting id to reset timer: {}",request.timerId());
+					timer.getId(),session.sequenceId());
+		} else {
+			log.info("Requesting id to reset timer: {}", request.timerId());
 			Timer timer = timerService.resetRemainingTime(request.timerId());
 			return PomodoroWebSocketResponse.of(PomodoroActionType.RESET, formatTime(timer.getRemainingTime()),
-					timer.getId());
+					timer.getId(),session.sequenceId());
 		}
 	}
 
 	@Override
 	public void deactivatePomodoroSession(String user) {
-		timerStop(user);
-		runningTasks.remove(user);
+		try {
+	        timerStop(user);
+	    } catch (Exception e) {
+	        log.warn("Failed to stop timer for user {}: {}", user, e.getMessage());
+	    } finally {
+	        runningTasks.remove(user);
+	    }
 	}
 
 	private PomodoroWebSocketResponse startCountdown(String user, Long timerId, long timeLeftSeconds, Long sequenceId) {
@@ -119,12 +125,12 @@ public class PomodoroWebSocketServiceImpl implements PomodoroWebSocketService {
 		ScheduledFuture<?> task = scheduler.scheduleAtFixedRate(() -> {
 			long current = timeLeft.decrementAndGet();
 			if (current > 0) {
-				pomodoroNotifier.notifyTick(user, formatTime(current), timerId);
+				pomodoroNotifier.notifyTick(user, formatTime(current), timerId,sequenceId);
 			} else {
-				pomodoroNotifier.notifyComplete(user, timerId);
+				pomodoroNotifier.notifyComplete(user, timerId,sequenceId);
 				int currentStep = timerSequenceService.retrieveStepByTimerId(timerId);
-				if(currentStep == 7) {
-					sequenceService.setStatusById(sequenceId,true);
+				if (currentStep == 7) {
+					sequenceService.setStatusById(sequenceId, true);
 				}
 				PomodoroSession session = runningTasks.remove(user);
 				if (session != null) {
@@ -134,7 +140,7 @@ public class PomodoroWebSocketServiceImpl implements PomodoroWebSocketService {
 		}, 0, 1, TimeUnit.SECONDS);
 
 		runningTasks.put(user, new PomodoroSession(scheduler, task, timeLeft, timerId, sequenceId));
-		return PomodoroWebSocketResponse.of(PomodoroActionType.TICK, formatTime(timeLeft.get()), timerId);
+		return PomodoroWebSocketResponse.of(PomodoroActionType.TICK, formatTime(timeLeft.get()), timerId,sequenceId);
 	}
 
 	private String formatTime(long totalSeconds) {

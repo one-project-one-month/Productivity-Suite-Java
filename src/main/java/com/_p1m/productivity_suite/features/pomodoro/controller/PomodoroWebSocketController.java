@@ -29,27 +29,27 @@ public class PomodoroWebSocketController {
 		String user = principal.getName();
 		String token = (String) accessor.getSessionAttributes().get("token");
 		PomodoroWebSocketResponse response = pomodoroWebSocketService.timerStart(user, request,token);
-		responseSender.send(user, response.type(), response.remainingTime(),response.timerId());
+		responseSender.send(user, response.type(), response.remainingTime(),response.timerId(),response.sequenceId());
 	}
 	
 	@MessageMapping("/pomodoro/resume")
 	public void resumePomodoro(Principal principal, @Payload PomodoroResumeRequest request,SimpMessageHeaderAccessor accessor) {
 		String user = principal.getName();
 		PomodoroWebSocketResponse response = pomodoroWebSocketService.timerResume(user, request);
-		responseSender.send(user, response.type(), response.remainingTime(),response.timerId());
+		responseSender.send(user, response.type(), response.remainingTime(),response.timerId(),response.sequenceId());
 	}
 
 	@MessageMapping("/pomodoro/stop")
 	public void stopPomodoro(Principal principal) {
 		String user = principal.getName();
 		PomodoroWebSocketResponse response = pomodoroWebSocketService.timerStop(user);
-		responseSender.send(user, response.type(), response.remainingTime(),response.timerId());
+		responseSender.send(user, response.type(), response.remainingTime(),response.timerId(),response.sequenceId());
 	}
 	@MessageMapping("/pomodoro/reset")
 	public void resetPomodoro(Principal principal,@Payload PomodoroResetRequest request) {
 		String user = principal.getName();
 		PomodoroWebSocketResponse response = pomodoroWebSocketService.timerReset(user,request);
-		responseSender.send(user, response.type(), response.remainingTime(),response.timerId());
+		responseSender.send(user, response.type(), response.remainingTime(),response.timerId(),response.sequenceId());
 	}
 	
 	

@@ -15,12 +15,12 @@ public class WebSocketResponseSender {
 
 	private final SimpMessagingTemplate messagingTemplate;
 
-	public void send(String user, Integer type, String remainingTime,Long timerId) {
+	public void send(String user, Integer type, String remainingTime,Long timerId,Long sequenceId) {
 		
 		WebSocketResponse response = WebSocketResponse.builder()
 			.success(1)
 			.code(200)
-			.data(new PomodoroWebSocketResponse(type, remainingTime,timerId))
+			.data(new PomodoroWebSocketResponse(type, remainingTime,timerId,sequenceId))
 			.build();
 
 		messagingTemplate.convertAndSendToUser(user, POMODORO_ROUTE, response);
