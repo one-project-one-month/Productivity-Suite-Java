@@ -8,7 +8,6 @@ import com._p1m.productivity_suite.data.models.Note;
 import com._p1m.productivity_suite.data.models.Transaction;
 import com._p1m.productivity_suite.features.categories.repository.CategoryRepository;
 import com._p1m.productivity_suite.features.note_taking.repository.NoteRepository;
-import com._p1m.productivity_suite.features.transcation.dto.TransactionRequest;
 import com._p1m.productivity_suite.features.transcation.repository.TransactionRepository;
 import com._p1m.productivity_suite.features.users.dto.response.UserDto;
 import com._p1m.productivity_suite.features.users.utils.UserUtil;

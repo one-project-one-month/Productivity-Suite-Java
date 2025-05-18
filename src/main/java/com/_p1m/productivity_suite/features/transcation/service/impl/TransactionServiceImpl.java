@@ -9,12 +9,10 @@ import com._p1m.productivity_suite.features.categories.repository.CategoryReposi
 import com._p1m.productivity_suite.features.transcation.dto.TransactionRequest;
 import com._p1m.productivity_suite.features.transcation.dto.TransactionResponse;
 import com._p1m.productivity_suite.features.transcation.repository.TransactionRepository;
-//import com._p1m.productivity_suite.features.transcation.utils.TransactionUtil;
 import com._p1m.productivity_suite.features.users.dto.response.UserDto;
 import com._p1m.productivity_suite.features.users.repository.UserRepository;
 import com._p1m.productivity_suite.features.users.utils.UserUtil;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -24,11 +22,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TransactionServiceImpl implements TransactionService {
 
-    private final ModelMapper modelMapper;
     private final UserUtil userUtil;
     private final UserRepository userRepository;
     private final TransactionRepository transactionRepository;
-//    private final TransactionUtil transactionUtil;
     private final CategoryRepository categoryRepository;
 
 
