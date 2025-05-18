@@ -6,4 +6,6 @@ import com._p1m.productivity_suite.features.timerSequence.dto.TimerSequenceReque
 
 public interface TimerSequenceService {
 	void createTimerSequence(Sequence sequence,Timer timer,TimerSequenceRequest timerSequenceRequest);
+	Integer incrementNextStepBySequenceId(Long id);
+	Integer retrieveStepByTimerId(Long id);
 }
