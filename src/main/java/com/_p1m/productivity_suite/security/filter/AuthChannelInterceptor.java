@@ -44,7 +44,6 @@ public class AuthChannelInterceptor implements ChannelInterceptor {
 				SecurityContextHolder.getContext().setAuthentication(userAuthToken);
 				accessor.setUser(userAuthToken);
 				accessor.getSessionAttributes().put("token", authHeader);
-				System.out.println(authHeader);
 				log.info("WebSocket is connected by user: {}", userAuthToken.toString());
 			} catch (UnauthorizedException ex) {
 				throw new AccessDeniedException("JWT validation failed: " + ex.getMessage());

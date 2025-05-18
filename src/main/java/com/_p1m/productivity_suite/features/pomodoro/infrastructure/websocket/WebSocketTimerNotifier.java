@@ -12,13 +12,13 @@ import lombok.RequiredArgsConstructor;
 public class WebSocketTimerNotifier implements PomodoroNotifier{
 	private final WebSocketResponseSender responseSender;
 	@Override
-	public void notifyTick(String user, String timeLeft,Long timerId) {
-		responseSender.send(user, PomodoroActionType.TICK.getValue(), timeLeft,timerId);
+	public void notifyTick(String user, String timeLeft,Long timerId,Long sequenceId) {
+		responseSender.send(user, PomodoroActionType.TICK.getValue(), timeLeft,timerId,sequenceId);
 	}
 
 	@Override
-	public void notifyComplete(String user,Long timerId) {
-		responseSender.send(user, PomodoroActionType.COMPLETE.getValue(), "0",timerId);
+	public void notifyComplete(String user,Long timerId,Long sequenceId) {
+		responseSender.send(user, PomodoroActionType.COMPLETE.getValue(), "00:00",timerId,sequenceId);
 	}
 
 }
