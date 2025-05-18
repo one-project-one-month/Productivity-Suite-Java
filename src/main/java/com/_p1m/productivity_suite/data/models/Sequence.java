@@ -22,9 +22,14 @@ public class Sequence implements PersistenceUtils.Identifiable {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
     
-    @ManyToOne
-    @JoinColumn(name = "category_id")
-    private Category category;
+    @Column(nullable = false)
+    private Integer type;
+    
+    @Column
+    private String description;
+    
+    @Column
+    private boolean status;
     
     @Column(name = "created_at", nullable = false, updatable = false)
     private Long createdAt;

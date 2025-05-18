@@ -10,21 +10,29 @@ import com._p1m.productivity_suite.features.timerSequence.dto.TimerSequenceReque
 import com._p1m.productivity_suite.features.timerSequence.repository.TimerSequenceRepository;
 import com._p1m.productivity_suite.features.timerSequence.service.TimerSequenceService;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class TimerSequenceServiceImpl implements TimerSequenceService{
+public class TimerSequenceServiceImpl implements TimerSequenceService {
 	private final TimerSequenceRepository timerSequenceRepository;
+
 	@Override
-	public void createTimerSequence(Sequence sequence, Timer timer,TimerSequenceRequest timerSequenceRequest) {
-		final TimerSequence timerSeq = TimerSequence.builder()
-				.sequence(sequence)
-				.timer(timer)
-				.step(timerSequenceRequest.step())
-				.build();
+	public void createTimerSequence(Sequence sequence, Timer timer, TimerSequenceRequest timerSequenceRequest) {
+		final TimerSequence timerSeq = TimerSequence.builder().sequence(sequence).timer(timer)
+				.step(timerSequenceRequest.step()).build();
 		PersistenceUtils.save(this.timerSequenceRepository, timerSeq, "TimerSequence");
 	}
-	
 
+	@Override
+	public Integer incrementNextStepBySequenceId(Long id) {
+		return timerSequenceRepository.findMaxStepBySequenceId(id) + 1;
+	}
+
+	@Override
+	public Integer retrieveStepByTimerId(Long id) {
+		return timerSequenceRepository.findStepByTimerId(id)
+				.orElseThrow(() -> new EntityNotFoundException("Can't find step with id: " + id));
+	}
 }

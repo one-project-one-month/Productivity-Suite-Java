@@ -1,16 +1,5 @@
 package com._p1m.productivity_suite.config.aspect;
 
-import com._p1m.productivity_suite.config.annotations.AuthorizationCheck;
-import com._p1m.productivity_suite.config.exceptions.EntityNotFoundException;
-import com._p1m.productivity_suite.config.exceptions.UnauthorizedException;
-import com._p1m.productivity_suite.data.models.Category;
-import com._p1m.productivity_suite.data.models.Note;
-import com._p1m.productivity_suite.features.categories.repository.CategoryRepository;
-import com._p1m.productivity_suite.features.note_taking.repository.NoteRepository;
-import com._p1m.productivity_suite.features.users.dto.response.UserDto;
-import com._p1m.productivity_suite.features.users.utils.UserUtil;
-import jakarta.servlet.http.HttpServletRequest;
-import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
@@ -20,6 +9,21 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import com._p1m.productivity_suite.config.annotations.AuthorizationCheck;
+import com._p1m.productivity_suite.config.exceptions.EntityNotFoundException;
+import com._p1m.productivity_suite.config.exceptions.UnauthorizedException;
+import com._p1m.productivity_suite.data.models.Category;
+import com._p1m.productivity_suite.data.models.Note;
+import com._p1m.productivity_suite.features.categories.repository.CategoryRepository;
+import com._p1m.productivity_suite.features.note_taking.repository.NoteRepository;
+import com._p1m.productivity_suite.data.models.Sequence;
+import com._p1m.productivity_suite.features.sequence.repository.SequenceRepository;
+import com._p1m.productivity_suite.features.users.dto.response.UserDto;
+import com._p1m.productivity_suite.features.users.utils.UserUtil;
+
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
+
 @Aspect
 @Component
 @RequiredArgsConstructor
@@ -27,6 +31,7 @@ public class AuthorizationAspect {
 
     private final CategoryRepository categoryRepository;
     private final NoteRepository noteRepository;
+    private final SequenceRepository sequenceRepository;
     private final UserUtil userUtil;
 
     @Before("@annotation(authorizationCheck)")
@@ -42,6 +47,13 @@ public class AuthorizationAspect {
                 final Category category = categoryRepository.findById(resourceId)
                         .orElseThrow(() -> new EntityNotFoundException("Category not found"));
                 if (!category.getUser().getId().equals(userDto.getId())) {
+                    throw new UnauthorizedException("Unauthorized to access this category");
+                }
+            }
+            case "SEQUENCE" ->{
+            	final Sequence sequence = sequenceRepository.findById(resourceId)
+            			.orElseThrow(() -> new EntityNotFoundException("Sequence not found"));
+            	if (!sequence.getUser().getId().equals(userDto.getId())) {
                     throw new UnauthorizedException("Unauthorized to access this category");
                 }
             }
