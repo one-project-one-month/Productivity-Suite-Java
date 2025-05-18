@@ -34,26 +34,10 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public void createTransaction(final String authHeader, final TransactionRequest transactionRequest) {
-//        final UserDto userDto = this.userUtil.getCurrentUserDto(authHeader);
-//        final User user = RepositoryUtils.findByIdOrThrow(this.userRepository,userDto.getId(),"User");
-//
-//        final TransactionDto transactionDto1 = this.transactionUtil.getTransactionDto(Long.valueOf(authHeader));
-//        final Transaction transaction = RepositoryUtils.findByIdOrThrow(this.transactionRepository,transactionDto.categoryId(),"Transaction");
-//        final Transaction transaction = new Transaction(
-//                transactionDto.amount(),
-//                transactionDto.description(),
-//                transactionDto.transactionDate(),
-//                transactionDto.categoryId(),
-//                user
-//
-
-//        );
-//        PersistenceUtils.save(this.transactionRepository,transaction,"Transaction");
        
             final UserDto userDto = this.userUtil.getCurrentUserDto(authHeader);
             final User user = RepositoryUtils.findByIdOrThrow(this.userRepository, userDto.getId(), "User");
 
-            // Get category
             final Category category = RepositoryUtils.findByIdOrThrow(this.categoryRepository, transactionRequest.categoryId(), "Category");
 
             final Transaction transaction = new Transaction(
@@ -64,16 +48,14 @@ public class TransactionServiceImpl implements TransactionService {
                     category
             );
 
-            // Save to DB
             PersistenceUtils.save(this.transactionRepository, transaction, "Transaction");
 
     }
-//    final Sort sortByName = Sort.by(Sort.Direction.ASC, "name");
     @Override
     public List<TransactionResponse> retrieveAll(String authHeader) {
 
         final  UserDto userDto = this.userUtil.getCurrentUserDto(authHeader);
-        final Sort sortByCreatedAt = Sort.by(Sort.Direction.ASC,"createdAt");//need to lear
+        final Sort sortByCreatedAt = Sort.by(Sort.Direction.ASC,"createdAt");
 
         final List<Transaction> transaction = RepositoryUtils.findAllByUserId(userDto.getId(),sortByCreatedAt,this.transactionRepository::findAllByUserId);
         return transaction.stream()
@@ -90,9 +72,7 @@ public class TransactionServiceImpl implements TransactionService {
                 transaction.getDescription(),
                 transaction.getTransactionDate(),
                 transaction.getCreatedAt(),
-                transaction.getUpdatedAt(),
-                transaction.isActive()
-
+                transaction.getUpdatedAt()
         );
     }
 
@@ -115,14 +95,6 @@ public class TransactionServiceImpl implements TransactionService {
     public void deleteTransaction(final Long id) {
         RepositoryUtils.findByIdOrThrow(this.transactionRepository,id,"Transaction");
         PersistenceUtils.deleteById(this.transactionRepository,id,"Transaction");
-
-    }
-
-    @Override
-    public void updateStatus(final long id, final boolean active) { //transaction table
-        final Transaction transaction = RepositoryUtils.findByIdOrThrow(this.transactionRepository,id,"Transaction");
-        transaction.setActive(active);
-        PersistenceUtils.save(this.transactionRepository, transaction, "Transaction");
 
     }
 

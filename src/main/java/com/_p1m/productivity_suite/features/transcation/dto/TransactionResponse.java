@@ -8,6 +8,5 @@ public record TransactionResponse(
         String description,
         Long transactionDate,
         Long createdAt,
-        Long updatedAt,
-        boolean active
+        Long updatedAt
 ) { }

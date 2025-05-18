@@ -11,6 +11,4 @@ public interface TransactionService {
     TransactionResponse retrieveOne(final long id);
     void updateTransaction(final long id, final TransactionRequest transactionRequest);
     void deleteTransaction(final Long id);
-    void updateStatus(final long id, final boolean active);
-
 }

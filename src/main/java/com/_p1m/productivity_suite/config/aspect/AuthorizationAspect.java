@@ -5,8 +5,11 @@ import com._p1m.productivity_suite.config.exceptions.EntityNotFoundException;
 import com._p1m.productivity_suite.config.exceptions.UnauthorizedException;
 import com._p1m.productivity_suite.data.models.Category;
 import com._p1m.productivity_suite.data.models.Note;
+import com._p1m.productivity_suite.data.models.Transaction;
 import com._p1m.productivity_suite.features.categories.repository.CategoryRepository;
 import com._p1m.productivity_suite.features.note_taking.repository.NoteRepository;
+import com._p1m.productivity_suite.features.transcation.dto.TransactionRequest;
+import com._p1m.productivity_suite.features.transcation.repository.TransactionRepository;
 import com._p1m.productivity_suite.features.users.dto.response.UserDto;
 import com._p1m.productivity_suite.features.users.utils.UserUtil;
 import jakarta.servlet.http.HttpServletRequest;
@@ -27,6 +30,7 @@ public class AuthorizationAspect {
 
     private final CategoryRepository categoryRepository;
     private final NoteRepository noteRepository;
+    private final TransactionRepository transactionRepository;
     private final UserUtil userUtil;
 
     @Before("@annotation(authorizationCheck)")
@@ -43,6 +47,13 @@ public class AuthorizationAspect {
                         .orElseThrow(() -> new EntityNotFoundException("Category not found"));
                 if (!category.getUser().getId().equals(userDto.getId())) {
                     throw new UnauthorizedException("Unauthorized to access this category");
+                }
+            }
+            case "TRANSACTION" -> {
+                final Transaction transaction = transactionRepository.findById(resourceId)
+                        .orElseThrow(()-> new EntityNotFoundException("Transaction not found"));
+                if(!transaction.getUser().getId().equals(userDto.getId())) {
+                    throw new UnauthorizedException("Unauthorized to access this transaction");
                 }
             }
 

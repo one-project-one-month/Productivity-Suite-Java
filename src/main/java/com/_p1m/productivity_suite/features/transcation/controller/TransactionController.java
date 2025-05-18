@@ -4,10 +4,8 @@ import com._p1m.productivity_suite.config.annotations.AuthorizationCheck;
 import com._p1m.productivity_suite.config.request.RequestUtils;
 import com._p1m.productivity_suite.config.response.dto.ApiResponse;
 import com._p1m.productivity_suite.config.response.utils.ResponseUtils;
-import com._p1m.productivity_suite.features.categories.dto.CategoryStatusUpdateRequest;
 import com._p1m.productivity_suite.features.transcation.dto.TransactionRequest;
 import com._p1m.productivity_suite.features.transcation.dto.TransactionResponse;
-import com._p1m.productivity_suite.features.transcation.dto.TransactionStatusUpdateRequest;
 import com._p1m.productivity_suite.features.transcation.service.impl.TransactionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -19,7 +17,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
-import java.util.Locale;
 
 @Tag(name="Transaction Module",description = "Endpoints for transaction management")
 @RestController
@@ -59,8 +56,8 @@ public class TransactionController {
     @AuthorizationCheck(resource = "TRANSACTION", idParam = "id")
     @DeleteMapping("/{id}")
     @Operation(
-            summary = "Delete a Transaction",
-            description = "Delete a Transaction by its ID.",
+            summary = "Delete a transaction",
+            description = "Delete a transaction by its ID.",
             responses = {
                     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Transaction deleted successfully.",
                             content = @Content(schema = @Schema(implementation = ApiResponse.class)))
@@ -86,7 +83,7 @@ public class TransactionController {
     @PutMapping("/{id}")
     @Operation(
             summary = "Update a transaction",
-            description = "Updates an existing transaction with the provided details.",
+            description = "Update an existing transaction with the provided details.",
             responses = {
                     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Transaction updated successfully",
                             content = @Content(schema = @Schema(implementation = ApiResponse.class)))
@@ -114,8 +111,8 @@ public class TransactionController {
 
     @GetMapping
     @Operation(
-            summary = "Retrieve all Transactions",
-            description = "Fetch a list of all Transactions.",
+            summary = "Retrieve all transactions",
+            description = "Fetch a list of all transactions.",
             responses = {
                     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Transaction retrieved successfully.",
                             content = @Content(schema = @Schema(implementation = ApiResponse.class)))
@@ -168,33 +165,6 @@ public class TransactionController {
 
 
 
-    }
-
-    @AuthorizationCheck(resource = "TRANSACTION" , idParam = "id")
-    @PatchMapping("/{id}/status")
-    @Operation(
-            summary = "Update Transaction status",
-            description = "Enables or disables the transaction by updating its active status.",
-            responses = {
-                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200",description = "Status updated successfully",
-                    content = @Content(schema = @Schema(implementation = ApiResponse.class)))
-            }
-    )
-    public ResponseEntity<ApiResponse> updateTransactionStatus(
-            @PathVariable final long id,
-            @RequestBody final TransactionStatusUpdateRequest transactionStatusUpdateRequest,
-            final HttpServletRequest request
-            ){
-        final double requestStartTime = RequestUtils.extractRequestStartTime(request);
-        this.transactionService.updateStatus(id, transactionStatusUpdateRequest.isActive());
-
-        final ApiResponse response = ApiResponse.builder()
-                .success(1)
-                .code(200)
-                .data(true)
-                .message("Transaction status updated successfully")
-                .build();
-        return ResponseUtils.buildResponse(request, response, requestStartTime);
     }
 
 }
