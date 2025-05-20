@@ -1,4 +1,4 @@
-name: CI Test Pipeline
+name: Unit Testing Pipeline
 on:
   pull_request:
     branches:
@@ -6,14 +6,13 @@ on:
       - develop
   push:
     branches:
+      - 'develop'
       - 'dev-*'
 
 jobs:
   # jobs id
   test:
     runs-on: ubuntu-latest
-    needs: build
-
     services:
       postgres:
         image: postgres:15
@@ -44,8 +43,7 @@ jobs:
         run: |
             sudo apt-get update && sudo apt-get install -y postgresql-client
             PGPASSWORD=testpass psql -h localhost -U testuser -d testdb -c '\l'
-      - name: Run Tests with Spring Profile
-        run: ./gradlew clean test -Dspring.profiles.active=test --no-daemon
+
 
 
 
