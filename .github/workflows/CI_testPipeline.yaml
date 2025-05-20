@@ -12,8 +12,8 @@ on:
 jobs:
   # jobs id
   test:
-    needs: build
     runs-on: ubuntu-latest
+    needs: build
     services:
       postgres:
         image: postgres:15
