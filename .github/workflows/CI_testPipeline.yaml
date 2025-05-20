@@ -1,0 +1,55 @@
+name: CI Test Pipeline
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+  push:
+    branches:
+      - 'dev-*'
+
+jobs:
+  # jobs id
+  test:
+    runs-on: ubuntu-latest
+    needs: build
+
+    services:
+      postgres:
+        image: postgres:15
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_DB: testdb
+          POSTGRES_USER: testuser
+          POSTGRES_PASSWORD: testpass
+        options: >-
+          --health-cmd="pg_isready -U testuser -d testdb"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Store the cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{github.sha}}-gradle-cache-key
+
+      - name: Test DB Connection
+        run: |
+            sudo apt-get update && sudo apt-get install -y postgresql-client
+            PGPASSWORD=testpass psql -h localhost -U testuser -d testdb -c '\l'
+      - name: Run Tests with Spring Profile
+        run: ./gradlew clean test -Dspring.profiles.active=test --no-daemon
+
+
+
+
+
+
+
