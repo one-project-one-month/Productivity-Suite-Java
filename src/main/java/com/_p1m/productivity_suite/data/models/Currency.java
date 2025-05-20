@@ -21,9 +21,6 @@ public class Currency implements PersistenceUtils.Identifiable {
     @Column(name = "name",nullable = false)
     private String name;
 
-    @Column(name = "active",nullable = false)
-    private boolean active;
-
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
@@ -33,6 +30,18 @@ public class Currency implements PersistenceUtils.Identifiable {
 
     @Column(nullable = false)
     private Long updatedAt;
+
+    @PrePersist
+    protected void onCreate() {
+        long now = System.currentTimeMillis();
+        this.createdAt = now;
+        this.updatedAt = now;
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = System.currentTimeMillis();
+    }
 
     public Currency(final String name, final User user) {
         this.name = name;
