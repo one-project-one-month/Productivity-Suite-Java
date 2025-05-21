@@ -64,7 +64,6 @@ public class CurrencyServiceImpl implements CurrencyService {
         return new CurrencyResponse(
                 currency.getId(),
                 currency.getName(),
-                currency.isActive(),
                 currency.getCreatedAt(),
                 currency.getUpdatedAt()
         );
