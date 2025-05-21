@@ -1,14 +1,6 @@
 name: CI workflow
 on:
-  workflow_dispatch:  #Manually run the pipeline
-  pull_request:
-    branches:
-      - main
-      - develop
-  push:
-    branches:
-      - develop
-      - 'dev-*'
+ workflow_call
 jobs:
   # jobs id
   build:

@@ -1,13 +1,6 @@
 name: Unit Testing Pipeline
 on:
-  pull_request:
-    branches:
-      - main
-      - develop
-  push:
-    branches:
-      - 'develop'
-      - 'dev-*'
+  workflow_call
 
 jobs:
   # jobs id
