@@ -9,4 +9,7 @@ public interface CurrencyService {
     void createCurrency(final String authHeader, final CurrencyRequest currencyRequest);
     List<CurrencyResponse> retrieveAll(final String authHeader);
     CurrencyResponse retrieveOne(final Long id);
+
+    void updateCurrency(final Long id, final CurrencyRequest currencyRequest);
+    void deleteCurrency(final Long id);
 }

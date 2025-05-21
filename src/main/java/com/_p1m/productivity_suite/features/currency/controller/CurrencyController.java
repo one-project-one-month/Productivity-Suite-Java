@@ -117,7 +117,7 @@ public class CurrencyController {
     ) {
         final double requestStartTime = System.currentTimeMillis();
 
-//        this.currencyService.updateCurrency(id, currencyRequest);
+        this.currencyService.updateCurrency(id, currencyRequest);
 
         final ApiResponse response = ApiResponse.builder()
                 .success(1)
@@ -144,7 +144,7 @@ public class CurrencyController {
     ) {
         final double requestStartTime = System.currentTimeMillis();
 
-//        this.currencyService.deleteCurrency(id);
+        this.currencyService.deleteCurrency(id);
 
         final ApiResponse response = ApiResponse.builder()
                 .success(1)

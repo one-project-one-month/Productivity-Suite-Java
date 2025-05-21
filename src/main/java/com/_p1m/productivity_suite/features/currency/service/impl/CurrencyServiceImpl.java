@@ -69,4 +69,17 @@ public class CurrencyServiceImpl implements CurrencyService {
         );
     }
 
+    @Override
+    public void updateCurrency(final Long id, final CurrencyRequest currencyRequest) {
+        final Currency currency = RepositoryUtils.findByIdOrThrow(this.currencyRepository,id,"Currency");
+
+        currency.setName(currencyRequest.name());
+        PersistenceUtils.save(this.currencyRepository, currency,"Currency");
+    }
+
+    @Override
+    public void deleteCurrency(final Long id) {
+        final Currency currency = RepositoryUtils.findByIdOrThrow(this.currencyRepository,id,"Currency");
+        this.currencyRepository.delete(currency);
+    }
 }
