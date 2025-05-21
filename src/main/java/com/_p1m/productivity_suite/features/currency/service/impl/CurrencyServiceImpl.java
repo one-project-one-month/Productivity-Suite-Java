@@ -80,6 +80,6 @@ public class CurrencyServiceImpl implements CurrencyService {
     @Override
     public void deleteCurrency(final Long id) {
         final Currency currency = RepositoryUtils.findByIdOrThrow(this.currencyRepository,id,"Currency");
-        this.currencyRepository.delete(currency);
+        PersistenceUtils.deleteById(this.currencyRepository, id, "Currency");
     }
 }
