@@ -10,4 +10,5 @@ import java.util.List;
 @Repository
 public interface CategoryRepository extends JpaRepository<Category, Long> {
     List<Category> findAllByUserId(Long userId, Sort sort);
+    boolean existsByIdAndUserId(Long id, Long userId);
 }
