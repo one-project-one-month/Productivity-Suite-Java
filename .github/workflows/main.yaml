@@ -1,0 +1,25 @@
+name: CI workflow
+on:
+  workflow_dispatch: #Manually run the pipeline
+  pull_request:
+      branches:
+        - main
+        - develop
+  push:
+      branches:
+        - develop
+        - 'dev-*'
+jobs:
+  application_build:
+    name: "Build the Application"
+    uses: ./.github/workflows/build.yaml
+
+  application_test:
+    needs: [application_build]
+    name: "test the application"
+    uses: ./.github/workflows/test.yaml
+
+
+
+
+
