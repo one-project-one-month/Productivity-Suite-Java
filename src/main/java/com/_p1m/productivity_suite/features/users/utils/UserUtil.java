@@ -8,6 +8,7 @@ import com._p1m.productivity_suite.security.service.normal.JwtService;
 import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -48,5 +49,10 @@ public class UserUtil {
                     log.warn("User not found for email: {}", email);
                     return new UnauthorizedException("User not found");
                 });
+    }
+
+    public UserDto getCurrentUserInternal() {
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        return (UserDto) auth.getPrincipal();
     }
 }

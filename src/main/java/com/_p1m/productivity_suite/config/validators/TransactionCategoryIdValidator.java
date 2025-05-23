@@ -2,18 +2,16 @@ package com._p1m.productivity_suite.config.validators;
 
 import com._p1m.productivity_suite.config.annotations.ValidCategoryId;
 import com._p1m.productivity_suite.features.categories.repository.CategoryRepository;
-import com._p1m.productivity_suite.security.filter.AuthenticatedUserProvider;
+import com._p1m.productivity_suite.features.users.utils.UserUtil;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 public class TransactionCategoryIdValidator implements ConstraintValidator<ValidCategoryId, Long> {
 
-    @Autowired
-    private CategoryRepository categoryRepository;
-
-    @Autowired
-    private AuthenticatedUserProvider authenticatedUserProvider;
+    private final CategoryRepository categoryRepository;
+    private final UserUtil userUtil;
 
     @Override
     public boolean isValid(Long categoryId, ConstraintValidatorContext context) {
@@ -21,7 +19,7 @@ public class TransactionCategoryIdValidator implements ConstraintValidator<Valid
             buildViolation(context, "Category ID is required.");
             return false;
         }
-        Long userId = authenticatedUserProvider.getCurrentUserId();
+        Long userId = userUtil.getCurrentUserInternal().getId();
         boolean exists = categoryRepository.existsByIdAndUserId(categoryId, userId);
 
         if (!exists) {
