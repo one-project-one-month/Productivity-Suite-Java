@@ -1,5 +1,7 @@
 package com._p1m.productivity_suite.config.aspect;
 
+import com._p1m.productivity_suite.data.models.Currency;
+import com._p1m.productivity_suite.features.currency.repo.CurrencyRepository;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
@@ -32,6 +34,7 @@ public class AuthorizationAspect {
     private final CategoryRepository categoryRepository;
     private final NoteRepository noteRepository;
     private final SequenceRepository sequenceRepository;
+    private final CurrencyRepository currencyRepository;
     private final UserUtil userUtil;
 
     @Before("@annotation(authorizationCheck)")
@@ -62,6 +65,14 @@ public class AuthorizationAspect {
                 final Note note = noteRepository.findById(resourceId)
                         .orElseThrow(() -> new EntityNotFoundException("Note not found"));
                 if (!note.getUser().getId().equals(userDto.getId())){
+                    throw new UnauthorizedException("Unauthorized to access this note");
+                }
+            }
+
+            case "CURRENCY" -> {
+                final Currency currency = currencyRepository.findById(resourceId)
+                        .orElseThrow(() -> new EntityNotFoundException("Currency not found"));
+                if (!currency.getUser().getId().equals(userDto.getId())){
                     throw new UnauthorizedException("Unauthorized to access this note");
                 }
             }
