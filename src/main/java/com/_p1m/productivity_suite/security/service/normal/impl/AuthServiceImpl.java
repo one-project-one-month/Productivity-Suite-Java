@@ -5,15 +5,14 @@ import com._p1m.productivity_suite.config.response.dto.ApiResponse;
 import com._p1m.productivity_suite.config.service.EmailService;
 import com._p1m.productivity_suite.config.utils.DtoUtil;
 import com._p1m.productivity_suite.config.utils.EntityUtil;
+import com._p1m.productivity_suite.config.utils.RepositoryUtils;
 import com._p1m.productivity_suite.data.enums.Gender;
+import com._p1m.productivity_suite.features.currency.repo.CurrencyRepository;
 import com._p1m.productivity_suite.features.users.dto.response.UserDto;
 import com._p1m.productivity_suite.data.models.User;
 import com._p1m.productivity_suite.features.users.repository.UserRepository;
 import com._p1m.productivity_suite.features.users.utils.UserUtil;
-import com._p1m.productivity_suite.security.dto.LoginRequest;
-import com._p1m.productivity_suite.security.dto.RegisterRequest;
-import com._p1m.productivity_suite.security.dto.ResetPasswordRequest;
-import com._p1m.productivity_suite.security.dto.VerifyEmailRequest;
+import com._p1m.productivity_suite.security.dto.*;
 import com._p1m.productivity_suite.security.service.normal.AuthService;
 import com._p1m.productivity_suite.security.service.normal.JwtService;
 import com._p1m.productivity_suite.security.utils.AuthUtil;
@@ -46,6 +45,7 @@ public class AuthServiceImpl implements AuthService {
     private final UserUtil userUtil;
     private final AuthUtil authUtil;
     private final EmailService emailService;
+    private final CurrencyRepository currencyRepository;
 
     private final Map<String, OtpUtils.OtpData> otpStore = new ConcurrentHashMap<>();
     private String emailInProcess;
@@ -280,4 +280,13 @@ public class AuthServiceImpl implements AuthService {
                 .build();
     }
 
+    @Override
+    public void updateSetting(final String authHeader, final UpdateUserSettingRequest updateUserSettingRequest) {
+        final UserDto userDto = this.userUtil.getCurrentUserDto(authHeader);
+        this.userRepository.updateDateFormatAndCurrencyById(
+                userDto.getId(),
+                updateUserSettingRequest.dateFormat(),
+                RepositoryUtils.findByIdOrThrow(this.currencyRepository, updateUserSettingRequest.currencyId(),"Currency")
+        );
+    }
 }
