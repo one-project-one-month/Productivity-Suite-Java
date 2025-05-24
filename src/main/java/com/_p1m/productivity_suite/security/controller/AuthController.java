@@ -7,7 +7,6 @@ import com._p1m.productivity_suite.config.response.dto.ApiResponse;
 import com._p1m.productivity_suite.config.response.utils.ResponseUtils;
 import com._p1m.productivity_suite.security.dto.*;
 import com._p1m.productivity_suite.security.service.normal.AuthService;
-import com._p1m.productivity_suite.security.service.normal.JwtService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -28,7 +27,6 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthService authService;
-    public final JwtService jwtService;
     private final CommandProcessingService commandProcessingService;
 
     @PostMapping("/login")
@@ -215,6 +213,47 @@ public class AuthController {
         final double requestStartTime = RequestUtils.extractRequestStartTime(httpRequest);
 
         final ApiResponse response = this.authService.resetPassword(resetPasswordRequest);
+        return ResponseUtils.buildResponse(httpRequest, response, requestStartTime);
+    }
+
+    @Operation(
+            summary = "Update user settings",
+            description = "Updates the current user's personal settings based on the provided request body.",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "Settings to update",
+                    required = true,
+                    content = @Content(schema = @Schema(implementation = UpdateUserSettingRequest.class))
+            ),
+            responses = {
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "200",
+                            description = "Setting updated successfully",
+                            content = @Content(schema = @Schema(implementation = ApiResponse.class))
+                    ),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "401",
+                            description = "Unauthorized - Invalid or missing token",
+                            content = @Content(schema = @Schema(implementation = ApiResponse.class))
+                    )
+            }
+    )
+    @PutMapping("/setting")
+    public ResponseEntity<ApiResponse> updateSetting(
+            @Validated @RequestBody final UpdateUserSettingRequest updateUserSettingRequest,
+            final HttpServletRequest httpRequest,
+            @RequestHeader(value = "Authorization") final String authHeader
+    ) {
+        log.info("Received setting request");
+        final double requestStartTime = RequestUtils.extractRequestStartTime(httpRequest);
+
+        this.authService.updateSetting(authHeader, updateUserSettingRequest);
+
+        final ApiResponse response = ApiResponse.builder()
+                .success(1)
+                .code(200)
+                .data(true)
+                .message("Setting updated successfully")
+                .build();
         return ResponseUtils.buildResponse(httpRequest, response, requestStartTime);
     }
 }
