@@ -13,6 +13,8 @@ import com._p1m.productivity_suite.features.users.dto.response.UserDto;
 import com._p1m.productivity_suite.features.users.utils.UserUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import com._p1m.productivity_suite.data.models.Currency;
+import com._p1m.productivity_suite.features.currency.repo.CurrencyRepository;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
@@ -22,6 +24,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import com._p1m.productivity_suite.data.models.Sequence;
+import com._p1m.productivity_suite.features.sequence.repository.SequenceRepository;
+
 @Aspect
 @Component
 @RequiredArgsConstructor
@@ -30,6 +35,8 @@ public class AuthorizationAspect {
     private final CategoryRepository categoryRepository;
     private final NoteRepository noteRepository;
     private final TodoListRepository todoListRepository;
+    private final SequenceRepository sequenceRepository;
+    private final CurrencyRepository currencyRepository;
     private final UserUtil userUtil;
 
     @Before("@annotation(authorizationCheck)")
@@ -48,6 +55,13 @@ public class AuthorizationAspect {
                     throw new UnauthorizedException("Unauthorized to access this category");
                 }
             }
+            case "SEQUENCE" ->{
+            	final Sequence sequence = sequenceRepository.findById(resourceId)
+            			.orElseThrow(() -> new EntityNotFoundException("Sequence not found"));
+            	if (!sequence.getUser().getId().equals(userDto.getId())) {
+                    throw new UnauthorizedException("Unauthorized to access this category");
+                }
+            }
 
             case "NOTE" -> {
                 final Note note = noteRepository.findById(resourceId)
@@ -60,8 +74,16 @@ public class AuthorizationAspect {
             case "TODOLIST" -> {
                 final TodoList todoList = todoListRepository.findById(resourceId)
                         .orElseThrow(() -> new EntityNotFoundException("Todo-list not found"));
-                if (!todoList.getUser().getId().equals(userDto.getId())){
+                if (!todoList.getUser().getId().equals(userDto.getId())) {
                     throw new UnauthorizedException("Unauthorized to access this list");
+                }
+            }
+
+            case "CURRENCY" -> {
+                final Currency currency = currencyRepository.findById(resourceId)
+                        .orElseThrow(() -> new EntityNotFoundException("Currency not found"));
+                if (!currency.getUser().getId().equals(userDto.getId())){
+                    throw new UnauthorizedException("Unauthorized to access this note");
                 }
             }
 

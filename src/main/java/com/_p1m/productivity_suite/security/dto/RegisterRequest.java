@@ -5,11 +5,16 @@ import com._p1m.productivity_suite.config.annotations.ValidName;
 import com._p1m.productivity_suite.config.annotations.ValidPassword;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 @Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class RegisterRequest {
 
     @ValidName
