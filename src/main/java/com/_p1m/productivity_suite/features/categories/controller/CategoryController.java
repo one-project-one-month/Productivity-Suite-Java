@@ -38,8 +38,8 @@ public class CategoryController {
             }
     )
     public ResponseEntity<ApiResponse> createCategory(
-            @Validated @RequestBody final CategoryRequest categoryRequest,
-            final HttpServletRequest request,
+            @Validated @RequestBody final CategoryRequest categoryRequest,  // ????
+            final HttpServletRequest request,  // ????
             @RequestHeader(value = "Authorization") final String authHeader
     ) {
         final double requestStartTime = RequestUtils.extractRequestStartTime(request);

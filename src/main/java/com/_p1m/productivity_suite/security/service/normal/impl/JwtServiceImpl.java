@@ -1,15 +1,18 @@
 package com._p1m.productivity_suite.security.service.normal.impl;
 
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.stereotype.Service;
+
 import com._p1m.productivity_suite.config.exceptions.TokenExpiredException;
 import com._p1m.productivity_suite.config.exceptions.UnauthorizedException;
 import com._p1m.productivity_suite.security.service.normal.JwtService;
 import com._p1m.productivity_suite.security.utils.JwtUtil;
-import io.jsonwebtoken.Claims;
-import org.springframework.stereotype.Service;
 
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+import io.jsonwebtoken.Claims;
 
 @Service
 public class JwtServiceImpl implements JwtService {
@@ -42,4 +45,14 @@ public class JwtServiceImpl implements JwtService {
     public String generateToken(final Map<String, Object> claims, final String subject, final long expirationMillis) {
         return JwtUtil.generateToken(claims, subject, expirationMillis);
     }
+    
+    @Override
+    public UsernamePasswordAuthenticationToken getAuthentication(String token) {
+        Claims claims = validateToken(token);
+        String username = claims.getSubject();
+        return new UsernamePasswordAuthenticationToken(
+            username, null, null
+        );
+    }
+
 }
