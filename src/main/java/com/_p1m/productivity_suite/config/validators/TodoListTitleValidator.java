@@ -13,7 +13,7 @@ public class TodoListTitleValidator implements ConstraintValidator<ValidTodoList
         if (todoListTitle.length() < 3 || todoListTitle.length() > 100) {
             return buildViolation(context, "Todo-list Title must be between 3 and 100 characters!");
         }
-        return false;
+        return true;
     }
 
     private boolean buildViolation(ConstraintValidatorContext context, String message) {
