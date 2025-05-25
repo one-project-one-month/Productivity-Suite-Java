@@ -4,6 +4,7 @@ import com._p1m.productivity_suite.config.response.dto.ApiResponse;
 import com._p1m.productivity_suite.security.dto.LoginRequest;
 import com._p1m.productivity_suite.security.dto.RegisterRequest;
 import com._p1m.productivity_suite.security.dto.ResetPasswordRequest;
+import com._p1m.productivity_suite.security.dto.UpdateUserSettingRequest;
 
 public interface AuthService {
     ApiResponse authenticateUser(final LoginRequest loginRequest);
@@ -19,4 +20,6 @@ public interface AuthService {
     ApiResponse verifyOtp(final String otp);
 
     ApiResponse resetPassword(final ResetPasswordRequest resetPasswordRequest);
+
+    void updateSetting(String authHeader, UpdateUserSettingRequest updateUserSettingRequest);
 }

@@ -43,11 +43,21 @@ public class Transaction implements PersistenceUtils.Identifiable {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    public Transaction(BigDecimal amount, String description, Long transactionDate, User user, Category category) {
+        this.amount = amount;
+        this.description = description;
+        this.transactionDate = transactionDate;
+        this.category = category;
+        this.user = user;
+
+    }
+
     @PrePersist
     protected void onCreate() {
         long now = System.currentTimeMillis();
         this.createdAt = now;
         this.updatedAt = now;
+
     }
 
     @PreUpdate
