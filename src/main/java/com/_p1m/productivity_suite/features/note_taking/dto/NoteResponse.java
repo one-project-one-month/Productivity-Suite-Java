@@ -1,9 +1,9 @@
 package com._p1m.productivity_suite.features.note_taking.dto;
 
+import java.util.List;
+
 public record NoteResponse(
-        Long id,
-        String title,
-        String body,
-        Long createdAt,
-        Long updatedAt
+        Long categoryId,
+        String categoryName,
+        List<NoteData> notes
 ) { }

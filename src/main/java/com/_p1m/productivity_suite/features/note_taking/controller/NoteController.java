@@ -4,9 +4,8 @@ import com._p1m.productivity_suite.config.annotations.AuthorizationCheck;
 import com._p1m.productivity_suite.config.request.RequestUtils;
 import com._p1m.productivity_suite.config.response.dto.ApiResponse;
 import com._p1m.productivity_suite.config.response.utils.ResponseUtils;
-import com._p1m.productivity_suite.features.note_taking.dto.CreateNoteRequest;
+import com._p1m.productivity_suite.features.note_taking.dto.NoteRequest;
 import com._p1m.productivity_suite.features.note_taking.dto.NoteResponse;
-import com._p1m.productivity_suite.features.note_taking.dto.UpdateNoteRequest;
 import com._p1m.productivity_suite.features.note_taking.service.NoteService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -28,7 +27,7 @@ public class NoteController {
 
     private final NoteService noteService;
 
-    @PostMapping
+    @PostMapping("/react")
     @Operation(
             summary = "Create a new note",
             description = "Creates a new note for the authenticated user.",
@@ -40,7 +39,7 @@ public class NoteController {
             }
     )
     public ResponseEntity<ApiResponse> createNote(
-            @Validated @RequestBody final CreateNoteRequest createNoteRequest,
+            @Validated @RequestBody final NoteRequest createNoteRequest,
             @RequestHeader(value = "Authorization") final String authHeader,
             final HttpServletRequest request
     ) {
@@ -57,22 +56,49 @@ public class NoteController {
         return ResponseUtils.buildResponse(request, response, requestStartTime);
     }
 
+//    @GetMapping
+//    @Operation(
+//            summary = "Retrieve all notes",
+//            description = "Fetches a list of all notes.",
+//            responses = {
+//                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Notes retrieved successfully",
+//                            content = @Content(schema = @Schema(implementation = ApiResponse.class)))
+//            }
+//    )
+//    public ResponseEntity<ApiResponse> retrieveAllNotes(
+//            @RequestHeader(value = "Authorization") final String authHeader,
+//            final HttpServletRequest request
+//    ) {
+//        final double requestStartTime = RequestUtils.extractRequestStartTime(request);
+//
+//        final List<NoteResponse> notes = this.noteService.retrieveAll(authHeader);
+//
+//        final ApiResponse response = ApiResponse.builder()
+//                .success(1)
+//                .code(200)
+//                .data(notes)
+//                .message("Notes retrieved successfully")
+//                .build();
+//        return ResponseUtils.buildResponse(request, response, requestStartTime);
+//    }
+
     @GetMapping
     @Operation(
-            summary = "Retrieve all notes",
-            description = "Fetches a list of all notes.",
+            summary = "Retrieve all notes by Category ID",
+            description = "Fetches a list of all notes by Category ID.",
             responses = {
                     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Notes retrieved successfully",
                             content = @Content(schema = @Schema(implementation = ApiResponse.class)))
             }
     )
-    public ResponseEntity<ApiResponse> retrieveAllNotes(
+    public ResponseEntity<ApiResponse> retrieveAllNotesByCategory(
             @RequestHeader(value = "Authorization") final String authHeader,
+            @RequestParam(required = false) final Long categoryId,
             final HttpServletRequest request
     ) {
         final double requestStartTime = RequestUtils.extractRequestStartTime(request);
 
-        final List<NoteResponse> notes = this.noteService.retrieveAll(authHeader);
+        final NoteResponse notes = this.noteService.retrieveAllByCategoryId(authHeader, categoryId);
 
         final ApiResponse response = ApiResponse.builder()
                 .success(1)
@@ -122,7 +148,7 @@ public class NoteController {
     )
     public ResponseEntity<ApiResponse> updateNote(
             @PathVariable final Long id,
-            @Validated @RequestBody final UpdateNoteRequest updateNoteRequest,
+            @Validated @RequestBody final NoteRequest updateNoteRequest,
             final HttpServletRequest request
     ) {
         final double requestStartTime = RequestUtils.extractRequestStartTime(request);
