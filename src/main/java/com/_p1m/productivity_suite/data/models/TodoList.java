@@ -46,6 +46,16 @@ public class TodoList implements PersistenceUtils.Identifiable {
     @Column(name = "updated_at", nullable = false)
     private Long updatedAt;
 
+    public TodoList(final String title, final String description, final Integer priority, final Integer status, final Long completedAt, final Long dueAt, final User user) {
+        this.title = title;
+        this.description = description;
+        this.priority = priority;
+        this.status = status;
+        this.completedAt = completedAt;
+        this.dueAt = dueAt;
+        this.user = user;
+    }
+
     @PrePersist
     protected void onCreate() {
         long now = System.currentTimeMillis();
