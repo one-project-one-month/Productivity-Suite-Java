@@ -28,6 +28,16 @@ public class Note implements PersistenceUtils.Identifiable {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @Column(name = "color", nullable = false)
+    private String color;
+
+    @Column(name = "is_pinned", nullable = false)
+    private boolean pinned;
+
+    @ManyToOne
+    @JoinColumn(name = "category_id", nullable = false)
+    private Category category;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Long createdAt;
 
@@ -46,10 +56,13 @@ public class Note implements PersistenceUtils.Identifiable {
         this.updatedAt = System.currentTimeMillis();
     }
 
-    public Note(final String title, final String body, final User user){
+    public Note(final String title, final String body, final User user, final String color, final Category category) {
         this.title = title;
         this.body = body;
         this.user = user;
+        this.color = color;
+        this.pinned = false;
+        this.category = category;
     }
 
     @Override

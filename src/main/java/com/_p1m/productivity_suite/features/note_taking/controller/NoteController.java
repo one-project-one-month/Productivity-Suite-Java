@@ -4,9 +4,10 @@ import com._p1m.productivity_suite.config.annotations.AuthorizationCheck;
 import com._p1m.productivity_suite.config.request.RequestUtils;
 import com._p1m.productivity_suite.config.response.dto.ApiResponse;
 import com._p1m.productivity_suite.config.response.utils.ResponseUtils;
-import com._p1m.productivity_suite.features.note_taking.dto.CreateNoteRequest;
+import com._p1m.productivity_suite.features.note_taking.dto.NoteCategoryData;
+import com._p1m.productivity_suite.features.note_taking.dto.NoteRequest;
 import com._p1m.productivity_suite.features.note_taking.dto.NoteResponse;
-import com._p1m.productivity_suite.features.note_taking.dto.UpdateNoteRequest;
+import com._p1m.productivity_suite.features.note_taking.dto.NoteRetrieveOneData;
 import com._p1m.productivity_suite.features.note_taking.service.NoteService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -28,9 +29,9 @@ public class NoteController {
 
     private final NoteService noteService;
 
-    @PostMapping
+    @PostMapping("/react")
     @Operation(
-            summary = "Create a new note",
+            summary = "Create a new note for React",
             description = "Creates a new note for the authenticated user.",
             responses = {
                     @io.swagger.v3.oas.annotations.responses.ApiResponse(
@@ -39,8 +40,8 @@ public class NoteController {
                             content = @Content(schema = @Schema(implementation = ApiResponse.class)))
             }
     )
-    public ResponseEntity<ApiResponse> createNote(
-            @Validated @RequestBody final CreateNoteRequest createNoteRequest,
+    public ResponseEntity<ApiResponse> createNoteForReact(
+            @Validated @RequestBody final NoteRequest createNoteRequest,
             @RequestHeader(value = "Authorization") final String authHeader,
             final HttpServletRequest request
     ) {
@@ -57,10 +58,67 @@ public class NoteController {
         return ResponseUtils.buildResponse(request, response, requestStartTime);
     }
 
+    @PostMapping("/flutter")
+    @Operation(
+            summary = "Create a new note for Flutter",
+            description = "Creates a new note for the authenticated user.",
+            responses = {
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "200",
+                            description = "Note created successfully",
+                            content = @Content(schema = @Schema(implementation = ApiResponse.class)))
+            }
+    )
+    public ResponseEntity<ApiResponse> createNoteForFlutter(
+            @Validated @RequestBody final List<NoteRequest> createNoteRequestList,
+            @RequestHeader(value = "Authorization") final String authHeader,
+            final HttpServletRequest request
+    ) {
+        final double requestStartTime = RequestUtils.extractRequestStartTime(request);
+
+        for (final NoteRequest createNoteRequest : createNoteRequestList) {
+            this.noteService.createNote(createNoteRequest, authHeader);
+        }
+
+        final ApiResponse response = ApiResponse.builder()
+                .success(1)
+                .code(200)
+                .data(true)
+                .message("Note created successfully")
+                .build();
+        return ResponseUtils.buildResponse(request, response, requestStartTime);
+    }
+
+//    @GetMapping
+//    @Operation(
+//            summary = "Retrieve all notes",
+//            description = "Fetches a list of all notes.",
+//            responses = {
+//                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Notes retrieved successfully",
+//                            content = @Content(schema = @Schema(implementation = ApiResponse.class)))
+//            }
+//    )
+//    public ResponseEntity<ApiResponse> retrieveAllNotes(
+//            @RequestHeader(value = "Authorization") final String authHeader,
+//            final HttpServletRequest request
+//    ) {
+//        final double requestStartTime = RequestUtils.extractRequestStartTime(request);
+//
+//        final List<NoteResponse> notes = this.noteService.retrieveAll(authHeader);
+//
+//        final ApiResponse response = ApiResponse.builder()
+//                .success(1)
+//                .code(200)
+//                .data(notes)
+//                .message("Notes retrieved successfully")
+//                .build();
+//        return ResponseUtils.buildResponse(request, response, requestStartTime);
+//    }
+
     @GetMapping
     @Operation(
-            summary = "Retrieve all notes",
-            description = "Fetches a list of all notes.",
+            summary = "Retrieve all notes by User",
+            description = "Fetches a list of all notes by User.",
             responses = {
                     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Notes retrieved successfully",
                             content = @Content(schema = @Schema(implementation = ApiResponse.class)))
@@ -72,7 +130,7 @@ public class NoteController {
     ) {
         final double requestStartTime = RequestUtils.extractRequestStartTime(request);
 
-        final List<NoteResponse> notes = this.noteService.retrieveAll(authHeader);
+        final List<NoteCategoryData> notes = this.noteService.retrieveAll(authHeader);
 
         final ApiResponse response = ApiResponse.builder()
                 .success(1)
@@ -82,6 +140,61 @@ public class NoteController {
                 .build();
         return ResponseUtils.buildResponse(request, response, requestStartTime);
     }
+
+    @AuthorizationCheck(resource = "CATEGORY", idParam = "categoryId")
+    @GetMapping("/by-category")
+    @Operation(
+            summary = "Retrieve all notes by Category ID",
+            description = "Fetches a list of all notes by Category ID.",
+            responses = {
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Notes retrieved successfully",
+                            content = @Content(schema = @Schema(implementation = ApiResponse.class)))
+            }
+    )
+    public ResponseEntity<ApiResponse> retrieveAllNotesByCategory(
+            @RequestHeader(value = "Authorization") final String authHeader,
+            @RequestParam final Long categoryId,
+            final HttpServletRequest request
+    ) {
+        final double requestStartTime = RequestUtils.extractRequestStartTime(request);
+
+        final NoteResponse notes = this.noteService.retrieveAllByCategoryId(authHeader, categoryId);
+
+        final ApiResponse response = ApiResponse.builder()
+                .success(1)
+                .code(200)
+                .data(notes)
+                .message("Notes retrieved successfully")
+                .build();
+        return ResponseUtils.buildResponse(request, response, requestStartTime);
+    }
+
+//    @AuthorizationCheck(resource = "NOTE", idParam = "id")
+//    @GetMapping("/{id}")
+//    @Operation(
+//            summary = "Retrieve a specific note by ID",
+//            description = "Fetches the details of a specific note by its ID.",
+//            responses = {
+//                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Note retrieved successfully",
+//                            content = @Content(schema = @Schema(implementation = ApiResponse.class)))
+//            }
+//    )
+//    public ResponseEntity<ApiResponse> retrieveNoteById(
+//            @PathVariable final Long id,
+//            final HttpServletRequest request
+//    ) {
+//        final double requestStartTime = RequestUtils.extractRequestStartTime(request);
+//
+//        final NoteResponse note = this.noteService.retrieveOne(id);
+//
+//        final ApiResponse response = ApiResponse.builder()
+//                .success(1)
+//                .code(200)
+//                .data(note)
+//                .message("Note retrieved successfully")
+//                .build();
+//        return ResponseUtils.buildResponse(request, response, requestStartTime);
+//    }
 
     @AuthorizationCheck(resource = "NOTE", idParam = "id")
     @GetMapping("/{id}")
@@ -99,7 +212,7 @@ public class NoteController {
     ) {
         final double requestStartTime = RequestUtils.extractRequestStartTime(request);
 
-        final NoteResponse note = this.noteService.retrieveOne(id);
+        final NoteRetrieveOneData note = this.noteService.retrieveOne(id);
 
         final ApiResponse response = ApiResponse.builder()
                 .success(1)
@@ -122,7 +235,7 @@ public class NoteController {
     )
     public ResponseEntity<ApiResponse> updateNote(
             @PathVariable final Long id,
-            @Validated @RequestBody final UpdateNoteRequest updateNoteRequest,
+            @Validated @RequestBody final NoteRequest updateNoteRequest,
             final HttpServletRequest request
     ) {
         final double requestStartTime = RequestUtils.extractRequestStartTime(request);

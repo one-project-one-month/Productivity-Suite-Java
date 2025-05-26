@@ -1,17 +1,17 @@
 package com._p1m.productivity_suite.config.annotations;
 
-import com._p1m.productivity_suite.config.validators.CategoryTypeValidator;
+import com._p1m.productivity_suite.config.validators.NoteColorValidator;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 
 import java.lang.annotation.*;
 
 @Documented
-@Constraint(validatedBy = CategoryTypeValidator.class)
+@Constraint(validatedBy = NoteColorValidator.class)
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ValidCategoryType {
-    String message() default "Category Type must be a number 1 (Pomodoro Timer), 2 (To-do List), 3 (Budget Tracker) or 4 (Note)";
+public @interface ValidNoteColor {
+    String message() default "Invalid note color.";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }
