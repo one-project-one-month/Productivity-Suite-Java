@@ -31,9 +31,13 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 	@Override
 	public void registerStompEndpoints(StompEndpointRegistry registry) {
 		String[] allowedOrigins = frontendUrls.split("\\s*,\\s*");
+		
+		// SockJS endpoint
 		registry.addEndpoint("/productivity-suite/api/v1/auth/ws").setAllowedOrigins(allowedOrigins)
 				.withSockJS();
-
+		
+		// Native websocket endpoint
+		registry.addEndpoint("/productivity-suite/api/v1/auth/ws").setAllowedOrigins(allowedOrigins);
 	}
 
 	@Override
