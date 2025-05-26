@@ -49,7 +49,7 @@ public class TodoListServiceImpl implements TodoListService {
     @Override
     public List<TodoListResponse> retrieveAll(final String authHeader) {
         final UserDto userDto = this.userUtil.getCurrentUserDto(authHeader);
-        final Sort sortByName = Sort.by(Sort.Direction.ASC, "name");
+        final Sort sortByName = Sort.by(Sort.Direction.ASC, "title");
         List<TodoList> todoLists = RepositoryUtils.findAllByUserId(userDto.getId(), sortByName, this.todoListRepository::findAllByUserId);
         return todoLists.stream()
                 .map(this::toTodoListResponseWithType)
