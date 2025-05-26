@@ -8,6 +8,6 @@ import com._p1m.productivity_suite.config.annotations.ValidNoteTitle;
 public record NoteRequest (
         @ValidNoteTitle String title,
         @ValidNoteBody String body,
-        @ValidCategoryId Long categoryId,
+        Long categoryId,
         @ValidNoteColor String color
 ) {}

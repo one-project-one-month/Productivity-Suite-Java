@@ -11,7 +11,7 @@ import java.lang.annotation.*;
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValidCategoryType {
-    String message() default "Category Type must be a number 1 (Pomodoro Timer), 2 (To-do List), or 3 (Budget Tracker)";
+    String message() default "Category Type must be a number 1 (Pomodoro Timer), 2 (To-do List), 3 (Budget Tracker) or 4 (Note)";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }

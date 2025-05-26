@@ -6,9 +6,12 @@ import com._p1m.productivity_suite.data.models.Category;
 import com._p1m.productivity_suite.data.models.Note;
 import com._p1m.productivity_suite.data.models.User;
 import com._p1m.productivity_suite.features.categories.repository.CategoryRepository;
+import com._p1m.productivity_suite.features.note_taking.dto.NoteCategoryData;
 import com._p1m.productivity_suite.features.note_taking.dto.NoteRequest;
 import com._p1m.productivity_suite.features.note_taking.dto.NoteResponse;
+import com._p1m.productivity_suite.features.note_taking.dto.NoteRetrieveOneData;
 import com._p1m.productivity_suite.features.note_taking.repository.NoteRepository;
+import com._p1m.productivity_suite.features.note_taking.repository.jdbc.NoteJdbcRepository;
 import com._p1m.productivity_suite.features.users.dto.response.UserDto;
 import com._p1m.productivity_suite.features.users.repository.UserRepository;
 import com._p1m.productivity_suite.features.users.utils.UserUtil;
@@ -24,6 +27,7 @@ public class NoteServiceImpl implements NoteService{
     private final UserRepository userRepository;
     private final UserUtil userUtil;
     private final CategoryRepository categoryRepository;
+    private final NoteJdbcRepository noteJdbcRepository;
 
     @Override
     public void createNote(final NoteRequest createNoteRequest, final String authHeader) {
@@ -53,21 +57,36 @@ public class NoteServiceImpl implements NoteService{
 //    }
 
     @Override
+    public List<NoteCategoryData> retrieveAll(final String authHeader) {
+
+        final UserDto userDto = this.userUtil.getCurrentUserDto(authHeader);
+        final User user = RepositoryUtils.findByIdOrThrow(this.userRepository, userDto.getId(), "User");
+
+        return this.noteJdbcRepository.findAllByUserId(user.getId());
+    }
+
+    @Override
     public NoteResponse retrieveAllByCategoryId(final String authHeader, final Long categoryId) {
         final Category category = RepositoryUtils.findByIdOrThrow(this.categoryRepository, categoryId, "Category");
         return new NoteResponse(
                 category.getId(),
                 category.getName(),
-                null
+                this.noteJdbcRepository.findAllByCategoryId(category.getId())
         );
     }
 
+//    @Override
+//    public NoteResponse retrieveOne(final Long id) {
+//        final Note note = RepositoryUtils.findByIdOrThrow(this.noteRepository, id, "Note");
+//
+//        return this.toNoteResponseWithType(note);
+//    }
+
     @Override
-    public NoteResponse retrieveOne(final Long id) {
+    public NoteRetrieveOneData retrieveOne(final Long id) {
         final Note note = RepositoryUtils.findByIdOrThrow(this.noteRepository, id, "Note");
 
-//        return this.toNoteResponseWithType(note);
-        return null;
+        return this.noteJdbcRepository.findById(note.getId());
     }
 
     @Override

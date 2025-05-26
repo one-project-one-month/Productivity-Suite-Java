@@ -6,7 +6,8 @@ public enum CategoryType {
     INVALID(0, "Invalid"),
     POMODORO_TIMER(1, "Pomodoro Timer"),
     TO_DO_LIST(2, "To-do List"),
-    BUDGET_TRACKER(3, "Budget Tracker");
+    BUDGET_TRACKER(3, "Budget Tracker"),
+    NOTE(4, "Note");
 
     private final Integer value;
     private final String code;
