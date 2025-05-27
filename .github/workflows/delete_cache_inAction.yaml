@@ -1,9 +1,10 @@
 name: Delete Cache on github action runner
 on:
   workflow_dispatch:
-  schedule:
-     - cron: '0 20 * * *' // Daily at 4:00 AM delete the cache
+    #Daily at 4:00 AM delete the cache
 jobs:
+  schedule:
+    - cron: '0 20 * * *'
   #jobs ID
   delete_cache:
     runs-on: ubuntu-latest
