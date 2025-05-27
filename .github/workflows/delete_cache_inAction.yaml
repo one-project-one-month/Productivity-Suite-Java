@@ -1,0 +1,17 @@
+name: Delete Cache on github action runner
+on:
+  workflow_dispatch:
+  schedule:
+     - cron: '0 20 * * *' // Daily at 4:00 AM delete the cache
+jobs:
+  #jobs ID
+  delete_cache:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete GitHub action cache
+        uses: toshimaru/delete-action-cache@main
+        with:
+          github-token: ${{ secrets.PAT_TOKEN }}
+          branch: develop
+          limit: 2
+
