@@ -251,7 +251,7 @@ public class NoteController {
         return ResponseUtils.buildResponse(request, response, requestStartTime);
     }
 
-    @AuthorizationCheck(resource = "CATEGORY", idParam = "id")
+    @AuthorizationCheck(resource = "NOTE", idParam = "id")
     @DeleteMapping("/{id}")
     @Operation(
             summary = "Delete a note by ID",
