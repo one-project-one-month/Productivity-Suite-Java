@@ -15,8 +15,8 @@ public class CategoryIdValidator implements ConstraintValidator<ValidCategoryId,
 
     @Override
     public boolean isValid(Long categoryId, ConstraintValidatorContext context) {
-        if (categoryId == null) {
-            buildViolation(context, "Category ID is required.");
+        if (categoryId == null || categoryId == 0) {
+            buildViolation(context, "Category ID is required or Category ID must be a positive number.");
             return false;
         }
         Long userId = userUtil.getCurrentUserInternal().getId();
