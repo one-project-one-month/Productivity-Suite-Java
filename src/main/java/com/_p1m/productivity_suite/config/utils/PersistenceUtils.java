@@ -4,6 +4,8 @@ import com._p1m.productivity_suite.config.exceptions.EntityCreationException;
 import com._p1m.productivity_suite.config.exceptions.EntityNotFoundException;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
+
 public class PersistenceUtils {
 
     /**
@@ -29,5 +31,20 @@ public class PersistenceUtils {
 
     public interface Identifiable {
         Long getId();
+    }
+
+    /**
+     * Saves a list of entities and verifies that all were successfully persisted.
+     */
+    public static <T extends Identifiable, R extends JpaRepository<T, Long>> void saveAll(R repository, List<T> entities, String entityName) {
+        final List<T> savedEntities = repository.saveAll(entities);
+
+        final boolean anyFailed = savedEntities
+                .stream()
+                .anyMatch(entity -> entity.getId() == null);
+        if (anyFailed) {
+            throw new EntityCreationException("Failed to create one or more " + entityName + " entities");
+        }
+
     }
 }

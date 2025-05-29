@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -55,9 +56,12 @@ public class AuthController {
 
         final CommandProcessingResult result = this.commandProcessingService.process(command);
 
+        final boolean isSuccess = result.isSuccess();
+        final int statusCode = isSuccess ? HttpStatus.OK.value() : HttpStatus.UNAUTHORIZED.value();
+
         final ApiResponse response = ApiResponse.builder()
-                .success(1)
-                .code(200)
+                .success(isSuccess ? 1 : 0)
+                .code(statusCode)
                 .message(result.getMessage())
                 .data(result.getData())
                 .build();
