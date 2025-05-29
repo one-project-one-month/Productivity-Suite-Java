@@ -8,7 +8,7 @@ import jakarta.validation.ConstraintValidatorContext;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class TransactionCategoryIdValidator implements ConstraintValidator<ValidCategoryId, Long> {
+public class CategoryIdValidator implements ConstraintValidator<ValidCategoryId, Long> {
 
     private final CategoryRepository categoryRepository;
     private final UserUtil userUtil;

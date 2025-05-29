@@ -1,5 +1,6 @@
 package com._p1m.productivity_suite.features.note_taking.service;
 
+import com._p1m.productivity_suite.config.exceptions.EntityNotFoundException;
 import com._p1m.productivity_suite.config.utils.PersistenceUtils;
 import com._p1m.productivity_suite.config.utils.RepositoryUtils;
 import com._p1m.productivity_suite.data.models.Category;
@@ -19,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -105,5 +107,41 @@ public class NoteServiceImpl implements NoteService{
         RepositoryUtils.findByIdOrThrow(this.noteRepository, id, "Note");
 
         PersistenceUtils.deleteById(this.noteRepository, id, "Note");
+    }
+
+    @Override
+    public boolean togglePinStatus(final Long id) {
+        final Note note = RepositoryUtils.findByIdOrThrow(this.noteRepository, id, "Note");
+        note.setPinned(!note.isPinned());
+        PersistenceUtils.save(this.noteRepository, note, "Note");
+        return note.isPinned();
+    }
+
+    @Override
+    public boolean togglePinStatusBulk(final List<Long> noteIds) {
+        Optional.ofNullable(noteIds)
+                .filter(ids -> !ids.isEmpty())
+                .orElseThrow(() -> new IllegalArgumentException("Note IDs list must not be empty."));
+
+        final Long currentUserId = this.userUtil.getCurrentUserInternal().getId();
+
+        final List<Note> notes = this.noteRepository.findAllById(noteIds);
+
+        if (notes.size() != noteIds.size()) {
+            throw new EntityNotFoundException("Some notes not found for given IDs.");
+        }
+
+        notes.stream()
+                .filter(note -> !note.getUser().getId().equals(currentUserId))
+                .findFirst()
+                .ifPresent(note -> {
+                    throw new SecurityException("Note with ID: " + note.getId() + " does not belong to the current user.");
+                });
+
+        notes.forEach(note -> note.setPinned(!note.isPinned()));
+
+        PersistenceUtils.saveAll(this.noteRepository, notes, "Note");
+
+        return notes.stream().allMatch(Note::isPinned);
     }
 }

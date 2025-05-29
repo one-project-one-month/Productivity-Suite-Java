@@ -8,6 +8,7 @@ import com._p1m.productivity_suite.security.service.normal.JwtService;
 import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
@@ -52,7 +53,15 @@ public class UserUtil {
     }
 
     public UserDto getCurrentUserInternal() {
-        var auth = SecurityContextHolder.getContext().getAuthentication();
-        return (UserDto) auth.getPrincipal();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new UnauthorizedException("User is not authenticated");
+        }
+        Object principal = authentication.getPrincipal();
+        if (principal instanceof UserDto) {
+            return (UserDto) principal;
+        }
+        throw new UnauthorizedException("Invalid user principal");
     }
+
 }

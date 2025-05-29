@@ -14,4 +14,6 @@ public interface NoteService {
     NoteRetrieveOneData retrieveOne(final Long id);
     void updateNote(final NoteRequest updateNoteRequest, final Long id);
     void deleteNote(final Long id);
+    boolean togglePinStatus(final Long id);
+    boolean togglePinStatusBulk(final List<Long> noteIds);
 }

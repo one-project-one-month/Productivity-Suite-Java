@@ -1,0 +1,2 @@
+org.springframework.boot.env.EnvironmentPostProcessor=\
+com._p1m.productivity_suite.config.processor.AppMetadataEnvironmentPostProcessor
