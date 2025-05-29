@@ -17,8 +17,8 @@ public class TransactionAmountValidator implements ConstraintValidator<ValidTran
             // Ensure amount is a whole number
             BigInteger amount = transactionAmount.toBigIntegerExact();
 
-            if (amount.compareTo(BigInteger.ONE) < 0 || amount.compareTo(BigInteger.valueOf(999999)) > 0) {
-                return buildViolation(context, "Transaction Amount must be between 1 and 999999.");
+            if (amount.compareTo(BigInteger.ONE) < 0) {
+                return buildViolation(context, "Transaction amount must be greater than zero.");
             }
         } catch (ArithmeticException e) {
             return buildViolation(context, "Transaction Amount must be a whole number.");

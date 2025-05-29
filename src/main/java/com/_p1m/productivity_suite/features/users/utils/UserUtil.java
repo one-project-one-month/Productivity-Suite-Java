@@ -12,6 +12,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
+
 @Component
 @Slf4j
 public class UserUtil {
@@ -53,15 +55,18 @@ public class UserUtil {
     }
 
     public UserDto getCurrentUserInternal() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated()) {
+        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal() == null) {
             throw new UnauthorizedException("User is not authenticated");
         }
-        Object principal = authentication.getPrincipal();
-        if (principal instanceof UserDto) {
-            return (UserDto) principal;
-        }
-        throw new UnauthorizedException("Invalid user principal");
+
+        final String userEmail = authentication.getPrincipal().toString();
+
+        final User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new UnauthorizedException("Authenticated user not found in the system"));
+
+        return this.modelMapper.map(user, UserDto.class);
     }
 
 }

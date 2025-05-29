@@ -9,6 +9,7 @@ import com._p1m.productivity_suite.features.categories.repository.CategoryReposi
 import com._p1m.productivity_suite.features.transcation.dto.TransactionRequest;
 import com._p1m.productivity_suite.features.transcation.dto.TransactionResponse;
 import com._p1m.productivity_suite.features.transcation.repository.TransactionRepository;
+import com._p1m.productivity_suite.features.transcation.repository.jdbc.TransactionJdbcRepository;
 import com._p1m.productivity_suite.features.users.dto.response.UserDto;
 import com._p1m.productivity_suite.features.users.repository.UserRepository;
 import com._p1m.productivity_suite.features.users.utils.UserUtil;
@@ -26,6 +27,7 @@ public class TransactionServiceImpl implements TransactionService {
     private final UserRepository userRepository;
     private final TransactionRepository transactionRepository;
     private final CategoryRepository categoryRepository;
+    private final TransactionJdbcRepository transactionJdbcRepository;
 
 
     @Override
@@ -47,17 +49,25 @@ public class TransactionServiceImpl implements TransactionService {
             PersistenceUtils.save(this.transactionRepository, transaction, "Transaction");
 
     }
+//    @Override
+//    public List<TransactionResponse> retrieveAll(String authHeader) {
+//
+//        final  UserDto userDto = this.userUtil.getCurrentUserDto(authHeader);
+//        final Sort sortByCreatedAt = Sort.by(Sort.Direction.ASC,"createdAt");
+//
+//        final List<Transaction> transaction = RepositoryUtils.findAllByUserId(userDto.getId(),sortByCreatedAt,this.transactionRepository::findAllByUserId);
+//        return transaction.stream()
+//                .map(this::toTransactionResponseWithType)
+//                .toList();
+//
+//    }
+
     @Override
-    public List<TransactionResponse> retrieveAll(String authHeader) {
+    public List<TransactionResponse> retrieveAll(final String authHeader, final int page, final int size) {
+        final int offset = (page - 1) * size;
+        final Long userId = userUtil.getCurrentUserDto(authHeader).getId();
 
-        final  UserDto userDto = this.userUtil.getCurrentUserDto(authHeader);
-        final Sort sortByCreatedAt = Sort.by(Sort.Direction.ASC,"createdAt");
-
-        final List<Transaction> transaction = RepositoryUtils.findAllByUserId(userDto.getId(),sortByCreatedAt,this.transactionRepository::findAllByUserId);
-        return transaction.stream()
-                .map(this::toTransactionResponseWithType)
-                .toList();
-
+        return this.transactionJdbcRepository.findAllByUserIdWithPagination(userId, size, offset);
     }
 
 
