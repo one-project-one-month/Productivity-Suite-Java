@@ -58,8 +58,8 @@ public class UserUtil {
             throw new UnauthorizedException("User is not authenticated");
         }
         Object principal = authentication.getPrincipal();
-        if (principal instanceof UserDto) {
-            return (UserDto) principal;
+        if (principal instanceof User user) {
+            return  this.modelMapper.map(user, UserDto.class);
         }
         throw new UnauthorizedException("Invalid user principal");
     }
