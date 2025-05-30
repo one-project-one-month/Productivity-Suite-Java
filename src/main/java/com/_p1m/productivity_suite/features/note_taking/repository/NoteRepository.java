@@ -10,4 +10,5 @@ import java.util.List;
 @Repository
 public interface NoteRepository extends JpaRepository<Note, Long> {
     List<Note> findAllByUserId(Long userId, Sort sort);
-    }
+    void deleteAllByCategoryIdAndUserId(Long categoryId, Long currentUserId);
+}

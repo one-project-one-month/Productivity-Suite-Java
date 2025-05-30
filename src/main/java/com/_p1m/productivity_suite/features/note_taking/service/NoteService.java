@@ -16,4 +16,5 @@ public interface NoteService {
     void deleteNote(final Long id);
     boolean togglePinStatus(final Long id);
     boolean togglePinStatusBulk(final List<Long> noteIds);
+    void deleteAllByCategoryId(final String authHeader, final Long categoryId);
 }
