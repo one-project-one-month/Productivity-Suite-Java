@@ -16,6 +16,7 @@ import com._p1m.productivity_suite.features.note_taking.repository.jdbc.NoteJdbc
 import com._p1m.productivity_suite.features.users.dto.response.UserDto;
 import com._p1m.productivity_suite.features.users.repository.UserRepository;
 import com._p1m.productivity_suite.features.users.utils.UserUtil;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -143,5 +144,12 @@ public class NoteServiceImpl implements NoteService{
         PersistenceUtils.saveAll(this.noteRepository, notes, "Note");
 
         return notes.stream().allMatch(Note::isPinned);
+    }
+
+    @Override
+    @Transactional
+    public void deleteAllByCategoryId(final String authHeader, final Long categoryId) {
+        final Long currentUserId = this.userUtil.getCurrentUserInternal().getId();
+        this.noteRepository.deleteAllByCategoryIdAndUserId(categoryId, currentUserId);
     }
 }
