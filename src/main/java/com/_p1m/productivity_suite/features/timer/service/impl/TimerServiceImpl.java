@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class TimerServiceImpl implements TimerService{
 	private final TimerRepository timerRepository;
+	
 	@Override
 	public Timer createTimer(final String authHeader, final TimerRequest timerRequest) {
 		Timer timer = Timer.builder()
@@ -39,5 +40,4 @@ public class TimerServiceImpl implements TimerService{
 		PersistenceUtils.save(this.timerRepository, timer, "Timer");
 		return timer;
 	}
-
 }

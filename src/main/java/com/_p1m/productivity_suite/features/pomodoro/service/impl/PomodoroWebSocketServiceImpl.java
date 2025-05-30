@@ -10,6 +10,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.springframework.stereotype.Service;
 
+import com._p1m.productivity_suite.config.exceptions.UnsupportedParameterException;
 import com._p1m.productivity_suite.data.enums.PomodoroActionType;
 import com._p1m.productivity_suite.data.models.Sequence;
 import com._p1m.productivity_suite.data.models.Timer;
@@ -41,13 +42,21 @@ public class PomodoroWebSocketServiceImpl implements PomodoroWebSocketService {
 	private final Map<String, PomodoroSession> runningTasks = new ConcurrentHashMap<>();
 	private final PomodoroNotifier pomodoroNotifier;
 	private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(10);
-
+	private final int Max_Step = 7;
 	@Override
 	public PomodoroWebSocketResponse timerStart(String user, PomodoroStartRequest request, String token) {
 		if (runningTasks.containsKey(user)) {
 			return PomodoroWebSocketResponse.invalid("Time is already running");
 		}
-
+		if (request.timerRequest().duration() == null) {
+			return PomodoroWebSocketResponse.invalid("Duration cannot be null");
+	    }
+	    if (request.timerRequest().remainingTime() == null) {
+	    	return PomodoroWebSocketResponse.invalid("Remaining time cannot be null");
+	    }
+	    if (request.timerRequest().timerType() == null) {
+	    	return PomodoroWebSocketResponse.invalid("Timer type cannot be null");
+	    }
 		Sequence sequence;
 		Timer timer = timerService.createTimer(token, request.timerRequest());
 
@@ -129,7 +138,7 @@ public class PomodoroWebSocketServiceImpl implements PomodoroWebSocketService {
 			} else {
 				pomodoroNotifier.notifyComplete(user, timerId,sequenceId);
 				int currentStep = timerSequenceService.retrieveStepByTimerId(timerId);
-				if (currentStep == 7) {
+				if (currentStep == Max_Step) {
 					sequenceService.setStatusById(sequenceId, true);
 				}
 				PomodoroSession session = runningTasks.remove(user);
