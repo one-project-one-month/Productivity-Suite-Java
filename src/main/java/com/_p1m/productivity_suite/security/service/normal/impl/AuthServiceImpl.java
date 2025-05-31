@@ -283,10 +283,17 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public void updateSetting(final String authHeader, final UpdateUserSettingRequest updateUserSettingRequest) {
         final UserDto userDto = this.userUtil.getCurrentUserDto(authHeader);
-        this.userRepository.updateDateFormatAndCurrencyById(
+        this.userRepository.updateDateFormatAndCurrencyCode(
                 userDto.getId(),
                 updateUserSettingRequest.dateFormat(),
-                RepositoryUtils.findByIdOrThrow(this.currencyRepository, updateUserSettingRequest.currencyId(),"Currency")
+                updateUserSettingRequest.currencyCode()
         );
     }
+
+	@Override
+	public void updateSetAmount(final String authHeader,final SetAmountUpdateRequest setAmountUpdateRequest) {
+		final UserDto userDto = this.userUtil.getCurrentUserDto(authHeader);
+		log.info("User {} is updating setAmount to {}", userDto.getId(), setAmountUpdateRequest.amount());
+		this.userRepository.updateSetAmountById(userDto.getId(), setAmountUpdateRequest.amount());
+	}
 }
