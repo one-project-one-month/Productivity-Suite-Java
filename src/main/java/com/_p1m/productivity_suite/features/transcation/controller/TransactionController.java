@@ -18,6 +18,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.math.BigDecimal;
 import java.util.List;
 
 @Tag(name="Transaction Module",description = "Endpoints for transaction management")
@@ -152,6 +154,36 @@ public class TransactionController {
         PaginationValidator.validatePageAndSize(page, size);
 
         final List<TransactionResponse> transactions = this.transactionService.retrieveAll(authHeader, page, size);
+
+        final ApiResponse response = ApiResponse.builder()
+                .success(1)
+                .code(200)
+                .message("Transactions retrieved successfully")
+                .data(transactions)
+                .build();
+
+        return ResponseUtils.buildResponse(request, response, requestStartTime);
+    }
+
+    @GetMapping("/search")
+    @Operation(summary = "Search transactions", description = "Search transactions by filters with pagination")
+    public ResponseEntity<ApiResponse> searchTransactions(
+            final HttpServletRequest request,
+            @RequestHeader(value = "Authorization") final String authHeader,
+            @RequestParam(required = false) final Long categoryId,
+            @RequestParam(required = false) final String description,
+            @RequestParam(required = false) final Long transactionDate,
+            @RequestParam(required = false) final BigDecimal fromAmount,
+            @RequestParam(required = false) final BigDecimal toAmount,
+            @RequestParam(defaultValue = "1") @Min(value = 1, message = "Page must be greater than 0") int page,
+            @RequestParam(defaultValue = "10") @Min(value = 1, message = "Size must be greater than 0") int size
+    ) {
+        final double requestStartTime = RequestUtils.extractRequestStartTime(request);
+        PaginationValidator.validatePageAndSize(page, size);
+
+        final List<TransactionResponse> transactions = this.transactionService.searchTransactions(
+                authHeader, categoryId, description, transactionDate, fromAmount, toAmount, page, size
+        );
 
         final ApiResponse response = ApiResponse.builder()
                 .success(1)

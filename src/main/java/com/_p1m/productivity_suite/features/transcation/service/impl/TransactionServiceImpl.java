@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -68,6 +69,15 @@ public class TransactionServiceImpl implements TransactionService {
         final Long userId = userUtil.getCurrentUserDto(authHeader).getId();
 
         return this.transactionJdbcRepository.findAllByUserIdWithPagination(userId, size, offset);
+    }
+
+    public List<TransactionResponse> searchTransactions(final String authHeader, final Long categoryId, final String description, final Long transactionDate, final BigDecimal fromAmount, final BigDecimal toAmount, final int page, final int size) {
+        final int offset = (page - 1) * size;
+        final Long userId = this.userUtil.getCurrentUserDto(authHeader).getId();
+
+        return this.transactionJdbcRepository.searchTransactions(
+                userId, categoryId, description, transactionDate, fromAmount, toAmount, size, offset
+        );
     }
 
 
