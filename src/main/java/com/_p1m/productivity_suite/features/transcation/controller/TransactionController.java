@@ -4,6 +4,7 @@ import com._p1m.productivity_suite.config.annotations.AuthorizationCheck;
 import com._p1m.productivity_suite.config.request.RequestUtils;
 import com._p1m.productivity_suite.config.response.dto.ApiResponse;
 import com._p1m.productivity_suite.config.response.utils.ResponseUtils;
+import com._p1m.productivity_suite.config.utils.PaginationValidator;
 import com._p1m.productivity_suite.features.transcation.dto.TransactionRequest;
 import com._p1m.productivity_suite.features.transcation.dto.TransactionResponse;
 import com._p1m.productivity_suite.features.transcation.service.impl.TransactionService;
@@ -12,6 +13,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -109,31 +111,55 @@ public class TransactionController {
 
     }
 
-    @GetMapping
-    @Operation(
-            summary = "Retrieve all transactions",
-            description = "Fetch a list of all transactions.",
-            responses = {
-                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Transaction retrieved successfully.",
-                            content = @Content(schema = @Schema(implementation = ApiResponse.class)))
-            }
+//    @GetMapping
+//    @Operation(
+//            summary = "Retrieve all transactions",
+//            description = "Fetch a list of all transactions.",
+//            responses = {
+//                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Transaction retrieved successfully.",
+//                            content = @Content(schema = @Schema(implementation = ApiResponse.class)))
+//            }
+//
+//    )
+//    public ResponseEntity<ApiResponse> getAllTransactions(
+//            final HttpServletRequest request,
+//            @RequestHeader(value = "Authorization") final String authHeader
+//    ) {
+//        final double requestStartTime = RequestUtils.extractRequestStartTime(request);
+//
+//        final List<TransactionResponse> transactions = this.transactionService.retrieveAll(authHeader);
+//
+//        final ApiResponse response = ApiResponse.builder()
+//                .success(1)
+//                .code(200)
+//                .data(true)
+//                .message("Transactions retrieved successfully")
+//                .data(transactions)
+//                .build();
+//        return ResponseUtils.buildResponse(request, response, requestStartTime);
+//    }
 
-    )
+    @GetMapping
+    @Operation(summary = "Retrieve all transactions", description = "Fetch paginated transactions.")
     public ResponseEntity<ApiResponse> getAllTransactions(
             final HttpServletRequest request,
-            @RequestHeader(value = "Authorization") final String authHeader
+            @RequestHeader(value = "Authorization") final String authHeader,
+            @RequestParam(defaultValue = "1") @Min(value = 1, message = "Page must be greater than 0") int page,
+            @RequestParam(defaultValue = "10") @Min(value = 1, message = "Size must be greater than 0") int size
     ) {
         final double requestStartTime = RequestUtils.extractRequestStartTime(request);
 
-        final List<TransactionResponse> transactions = this.transactionService.retrieveAll(authHeader);
+        PaginationValidator.validatePageAndSize(page, size);
+
+        final List<TransactionResponse> transactions = this.transactionService.retrieveAll(authHeader, page, size);
 
         final ApiResponse response = ApiResponse.builder()
                 .success(1)
                 .code(200)
-                .data(true)
                 .message("Transactions retrieved successfully")
                 .data(transactions)
                 .build();
+
         return ResponseUtils.buildResponse(request, response, requestStartTime);
     }
 

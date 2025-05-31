@@ -5,6 +5,7 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
@@ -45,11 +46,14 @@ public class User {
     private boolean loginFirstTime = true;
 
     private String dateFormat;
-
-    @ManyToOne
-    @JoinColumn(name = "currency_id")
-    private Currency currency;
-
+    
+    @Builder.Default
+    @Column(nullable = false, columnDefinition = "varchar(255) default 'MMK'")
+    private String currencyCode="MMK";
+    
+    @Column(name = "set_amount", scale = 6, precision = 19, nullable = true)
+    private BigDecimal setAmount;
+    
     @CreationTimestamp
     private LocalDateTime createdAt;
 

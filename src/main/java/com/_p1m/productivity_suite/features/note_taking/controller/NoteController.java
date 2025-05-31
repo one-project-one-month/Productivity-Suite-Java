@@ -277,4 +277,95 @@ public class NoteController {
                 .build();
         return ResponseUtils.buildResponse(request, response, requestStartTime);
     }
+
+    @AuthorizationCheck(resource = "NOTE", idParam = "id")
+    @PatchMapping("/{id}/pin")
+    @Operation(
+            summary = "Toggle pinned status of a single note",
+            description = "Toggles the pin/unpin status of a note. No request body or params needed.",
+            responses = {
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "200",
+                            description = "Note pinned/unpinned successfully",
+                            content = @Content(schema = @Schema(implementation = ApiResponse.class)))
+            }
+    )
+    public ResponseEntity<ApiResponse> togglePinSingleNote(
+            @PathVariable final Long id,
+            final HttpServletRequest request
+    ) {
+        final double requestStartTime = RequestUtils.extractRequestStartTime(request);
+
+        final boolean pinnedNow = this.noteService.togglePinStatus(id);
+
+        final ApiResponse response = ApiResponse.builder()
+                .success(1)
+                .code(200)
+                .data(true)
+                .message(pinnedNow ? "Note pinned successfully" : "Note unpinned successfully")
+                .build();
+
+        return ResponseUtils.buildResponse(request, response, requestStartTime);
+    }
+
+    @PutMapping("/pin")
+    @Operation(
+            summary = "Toggle pinned status for multiple notes",
+            description = "Pins or unpins multiple notes by their IDs.",
+            responses = {
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "200",
+                            description = "Notes pinned/unpinned successfully",
+                            content = @Content(schema = @Schema(implementation = ApiResponse.class)))
+            }
+    )
+    public ResponseEntity<ApiResponse> togglePinBulkNotes(
+            @RequestBody final List<Long> noteIds,
+            final HttpServletRequest request
+    ) {
+        final double requestStartTime = RequestUtils.extractRequestStartTime(request);
+
+        final boolean allPinned = this.noteService.togglePinStatusBulk(noteIds);
+
+        final ApiResponse response = ApiResponse.builder()
+                .success(1)
+                .code(200)
+                .data(true)
+                .message(allPinned ? "Notes pinned successfully" : "Notes unpinned successfully")
+                .build();
+
+        return ResponseUtils.buildResponse(request, response, requestStartTime);
+    }
+
+    @AuthorizationCheck(resource = "CATEGORY", idParam = "categoryId")
+    @DeleteMapping("/by-category")
+    @Operation(
+            summary = "Delete all notes by Category ID",
+            description = "Deletes all notes associated with the specified Category ID.",
+            responses = {
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "200",
+                            description = "Notes deleted successfully",
+                            content = @Content(schema = @Schema(implementation = ApiResponse.class)))
+            }
+    )
+    public ResponseEntity<ApiResponse> deleteNotesByCategoryId(
+            @RequestHeader(value = "Authorization") final String authHeader,
+            @RequestParam final Long categoryId,
+            final HttpServletRequest request
+    ) {
+        final double requestStartTime = RequestUtils.extractRequestStartTime(request);
+
+        this.noteService.deleteAllByCategoryId(authHeader, categoryId);
+
+        final ApiResponse response = ApiResponse.builder()
+                .success(1)
+                .code(200)
+                .data(true)
+                .message("All notes under the category deleted successfully")
+                .build();
+
+        return ResponseUtils.buildResponse(request, response, requestStartTime);
+    }
+
 }

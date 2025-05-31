@@ -1,23 +1,44 @@
 package com._p1m.productivity_suite.security.controller;
 
-import com._p1m.productivity_suite.config.command.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com._p1m.productivity_suite.config.command.CommandProcessingResult;
+import com._p1m.productivity_suite.config.command.CommandProcessingService;
+import com._p1m.productivity_suite.config.command.CommandWrapper;
+import com._p1m.productivity_suite.config.command.CommandWrapperBuilder;
+import com._p1m.productivity_suite.config.command.JsonCommand;
 import com._p1m.productivity_suite.config.exceptions.UnauthorizedException;
 import com._p1m.productivity_suite.config.request.RequestUtils;
 import com._p1m.productivity_suite.config.response.dto.ApiResponse;
 import com._p1m.productivity_suite.config.response.utils.ResponseUtils;
-import com._p1m.productivity_suite.security.dto.*;
+import com._p1m.productivity_suite.security.dto.ChangePasswordRequest;
+import com._p1m.productivity_suite.security.dto.RegisterRequest;
+import com._p1m.productivity_suite.security.dto.ResetPasswordRequest;
+import com._p1m.productivity_suite.security.dto.SetAmountUpdateRequest;
+import com._p1m.productivity_suite.security.dto.UpdateUserSettingRequest;
+import com._p1m.productivity_suite.security.dto.VerifyOtpRequest;
 import com._p1m.productivity_suite.security.service.normal.AuthService;
 import com.fasterxml.jackson.core.JsonProcessingException;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "User Module", description = "Endpoints for user authentication, registration, and password management")
 @RestController
@@ -55,9 +76,12 @@ public class AuthController {
 
         final CommandProcessingResult result = this.commandProcessingService.process(command);
 
+        final boolean isSuccess = result.isSuccess();
+        final int statusCode = isSuccess ? HttpStatus.OK.value() : HttpStatus.UNAUTHORIZED.value();
+
         final ApiResponse response = ApiResponse.builder()
-                .success(1)
-                .code(200)
+                .success(isSuccess ? 1 : 0)
+                .code(statusCode)
                 .message(result.getMessage())
                 .data(result.getData())
                 .build();
@@ -256,4 +280,23 @@ public class AuthController {
                 .build();
         return ResponseUtils.buildResponse(httpRequest, response, requestStartTime);
     }
+    
+    @PatchMapping("/set-amount")
+    public ResponseEntity<ApiResponse> updateSetAmount(@Valid @RequestBody SetAmountUpdateRequest setAmountUpdateRequest,
+    		final HttpServletRequest httpRequest,
+    		@RequestHeader(value = "Authorization") final String authHeader) {
+    	log.info("Received setting amount request");
+        final double requestStartTime = RequestUtils.extractRequestStartTime(httpRequest);
+
+        this.authService.updateSetAmount(authHeader, setAmountUpdateRequest);
+
+        final ApiResponse response = ApiResponse.builder()
+                .success(1)
+                .code(200)
+                .data(true)
+                .message("Amount is successfully set")
+                .build();
+        return ResponseUtils.buildResponse(httpRequest, response, requestStartTime);
+    }
+
 }

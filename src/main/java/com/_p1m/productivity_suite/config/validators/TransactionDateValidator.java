@@ -18,7 +18,7 @@ public class TransactionDateValidator implements ConstraintValidator<ValidTransa
             return buildViolation(context,"Transaction Date is required");
         }
         // Convert timestamp to LocalDateTime using system default timezone
-        Instant transactionInstant = Instant.ofEpochMilli(transactionDate);
+        Instant transactionInstant = Instant.ofEpochSecond(transactionDate);
         ZonedDateTime transactionDateTime = transactionInstant.atZone(ZoneId.systemDefault());
 
         // Get current date and the start/end of the month
@@ -32,8 +32,7 @@ public class TransactionDateValidator implements ConstraintValidator<ValidTransa
         }
 
         return true;
-
-}
+    }
 
     private boolean buildViolation(ConstraintValidatorContext context, String message) {
         context.disableDefaultConstraintViolation();
