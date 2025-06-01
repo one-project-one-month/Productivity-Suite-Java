@@ -9,6 +9,7 @@ import com._p1m.productivity_suite.features.categories.service.CategoryService;
 import com._p1m.productivity_suite.config.response.dto.ApiResponse;
 import com._p1m.productivity_suite.config.response.utils.ResponseUtils;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -58,27 +59,41 @@ public class CategoryController {
     @GetMapping
     @Operation(
             summary = "Retrieve all categories",
-            description = "Fetches a list of all categories.",
+            description = "Fetches a list of all categories based on type.",
             responses = {
-                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Categories retrieved successfully",
-                            content = @Content(schema = @Schema(implementation = ApiResponse.class)))
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "200",
+                            description = "Categories retrieved successfully",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ApiResponse.class)
+                            )
+                    )
             }
     )
     public ResponseEntity<ApiResponse> retrieveAllCategories(
             final HttpServletRequest request,
+            @Parameter(
+                    description = "Category type: 1=Pomodoro Timer, 2=To-do List, 3=Budget Tracker, 4=Note",
+                    required = true,
+                    example = "2",
+                    schema = @Schema(type = "integer", allowableValues = {"1", "2", "3", "4"})
+            )
+            @RequestParam(value = "type") final Integer type,
+
+            @Parameter(hidden = true)
             @RequestHeader(value = "Authorization") final String authHeader
     ) {
         final double requestStartTime = RequestUtils.extractRequestStartTime(request);
-
-        final List<CategoryResponse> categories = this.categoryService.retrieveAll(authHeader);
+        final List<CategoryResponse> categories = this.categoryService.retrieveAll(authHeader, type);
 
         final ApiResponse response = ApiResponse.builder()
                 .success(1)
                 .code(200)
-                .data(true)
-                .message("Categories retrieved successfully")
                 .data(categories)
+                .message("Categories retrieved successfully")
                 .build();
+
         return ResponseUtils.buildResponse(request, response, requestStartTime);
     }
 

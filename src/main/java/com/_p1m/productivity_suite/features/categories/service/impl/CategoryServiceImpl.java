@@ -6,6 +6,7 @@ import com._p1m.productivity_suite.data.models.User;
 import com._p1m.productivity_suite.features.categories.dto.CategoryRequest;
 import com._p1m.productivity_suite.features.categories.dto.CategoryResponse;
 import com._p1m.productivity_suite.features.categories.repository.CategoryRepository;
+import com._p1m.productivity_suite.features.categories.repository.jdbc.CategoryJdbcRepository;
 import com._p1m.productivity_suite.features.categories.service.CategoryService;
 import com._p1m.productivity_suite.features.users.dto.response.UserDto;
 import com._p1m.productivity_suite.features.users.repository.UserRepository;
@@ -28,6 +29,7 @@ public class CategoryServiceImpl implements CategoryService {
     private final ModelMapper modelMapper;
     private final UserUtil userUtil;
     private final UserRepository userRepository;
+    private final CategoryJdbcRepository categoryJdbcRepository;
 
     @Override
     public void createCategory(final String authHeader, final CategoryRequest request) {
@@ -44,14 +46,20 @@ public class CategoryServiceImpl implements CategoryService {
         PersistenceUtils.save(this.categoryRepository, category, "Category");
     }
 
+//    @Override
+//    public List<CategoryResponse> retrieveAll(final String authHeader) {
+//        final UserDto userDto = this.userUtil.getCurrentUserDto(authHeader);
+//        final Sort sortByName = Sort.by(Sort.Direction.ASC, "name");
+//        final List<Category> categories = RepositoryUtils.findAllByUserId(userDto.getId(), sortByName, this.categoryRepository::findAllByUserId);
+//        return categories.stream()
+//                .map(this::toCategoryResponseWithType)
+//                .toList();
+//    }
+
     @Override
-    public List<CategoryResponse> retrieveAll(final String authHeader) {
+    public List<CategoryResponse> retrieveAll(final String authHeader, final Integer type) {
         final UserDto userDto = this.userUtil.getCurrentUserDto(authHeader);
-        final Sort sortByName = Sort.by(Sort.Direction.ASC, "name");
-        final List<Category> categories = RepositoryUtils.findAllByUserId(userDto.getId(), sortByName, this.categoryRepository::findAllByUserId);
-        return categories.stream()
-                .map(this::toCategoryResponseWithType)
-                .toList();
+        return this.categoryJdbcRepository.findByUserIdAndType(userDto.getId(), type);
     }
 
     @Override
