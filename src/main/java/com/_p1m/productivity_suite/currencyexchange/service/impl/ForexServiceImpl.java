@@ -2,6 +2,7 @@ package com._p1m.productivity_suite.currencyexchange.service.impl;
 
 import com._p1m.productivity_suite.config.utils.ValidationUtils;
 import com._p1m.productivity_suite.currencyexchange.integration.ForexApiClient;
+import com._p1m.productivity_suite.currencyexchange.response.ForexCurrencyResponse;
 import com._p1m.productivity_suite.currencyexchange.response.ForexResponse;
 import com._p1m.productivity_suite.currencyexchange.service.ForexService;
 import com.github.benmanes.caffeine.cache.AsyncLoadingCache;
@@ -12,6 +13,8 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.math.RoundingMode;
@@ -123,5 +126,24 @@ public class ForexServiceImpl implements ForexService {
             log.error("💥 [ForexServiceImpl] Exchange calculation failed: {}", ex.getMessage(), ex);
             throw new RuntimeException("Exchange calculation failed", ex);
         });
+    }
+
+    @Override
+    public CompletableFuture<List<ForexCurrencyResponse>> getCurrencyCodeList() {
+        return getLatestForex()
+                .thenApply(response -> {
+                    List<ForexCurrencyResponse> currencies = new ArrayList<>();
+                    long id = 1L;
+                    currencies.add(new ForexCurrencyResponse(id++, "MMK"));
+                    for (String name : response.rates().keySet()) {
+                        currencies.add(new ForexCurrencyResponse(id++, name));
+                    }
+                    return currencies;
+                });
+    }
+
+    @Override
+    public List<ForexCurrencyResponse> getCurrencyList() {
+        return this.getCurrencyCodeList().join();
     }
 }
