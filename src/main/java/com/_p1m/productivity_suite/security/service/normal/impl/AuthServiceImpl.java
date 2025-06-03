@@ -86,16 +86,17 @@ public class AuthServiceImpl implements AuthService {
         boolean firstTimeLogin = false;
 
         if(user.isLoginFirstTime()) {
-            firstTimeLogin = true;
-            user.setLoginFirstTime(false);
+            user.setLoginFirstTime(firstTimeLogin);
             this.userRepository.save(user);
             log.info("User {} logged in for the first time.", user.getName());
         }
 
         final UserDto userDto = DtoUtil.map(user, UserDto.class, modelMapper);
-        userDto.setLoginFirstTime(firstTimeLogin);
         userDto.setGenderId(Gender.fromInt(user.getGender()).getValue());
         userDto.setGenderName(Gender.fromInt(user.getGender()).getCode());
+        userDto.setDateFormat(user.getDateFormat());
+        userDto.setCurrencyCode(user.getCurrencyCode());
+        userDto.setSetAmount(user.getSetAmount());
 
         Map<String, Object> tokenData = authUtil.generateTokens(user);
 
