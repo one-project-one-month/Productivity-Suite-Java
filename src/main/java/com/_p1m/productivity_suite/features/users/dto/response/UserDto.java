@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -16,7 +18,9 @@ public class UserDto {
     private boolean status;
     private Integer genderId;
     private String genderName;
-    private boolean loginFirstTime;
+    private String dateFormat;
+    private String currencyCode;
+    private BigDecimal setAmount;
     private String createdAt;
     private String updatedAt;
 }

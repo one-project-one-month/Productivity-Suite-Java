@@ -4,8 +4,10 @@ import com._p1m.productivity_suite.config.utils.PersistenceUtils;
 import com._p1m.productivity_suite.config.utils.RepositoryUtils;
 import com._p1m.productivity_suite.data.enums.PriorityType;
 import com._p1m.productivity_suite.data.enums.StatusType;
+import com._p1m.productivity_suite.data.models.Category;
 import com._p1m.productivity_suite.data.models.TodoList;
 import com._p1m.productivity_suite.data.models.User;
+import com._p1m.productivity_suite.features.categories.repository.CategoryRepository;
 import com._p1m.productivity_suite.features.todolist.dto.TodoListRequest;
 import com._p1m.productivity_suite.features.todolist.dto.TodoListResponse;
 import com._p1m.productivity_suite.features.todolist.repository.TodoListRepository;
@@ -26,12 +28,14 @@ public class TodoListServiceImpl implements TodoListService {
     private final TodoListRepository todoListRepository;
     private final UserRepository userRepository;
     private final UserUtil userUtil;
+    private final CategoryRepository categoryRepository;
 
     @Override
     public void createTodoList(final String authHeader, final TodoListRequest todoListRequest) {
         final UserDto userDto = this.userUtil.getCurrentUserDto(authHeader);
 
         final User user = RepositoryUtils.findByIdOrThrow(this.userRepository, userDto.getId(), "User");
+        final Category category = RepositoryUtils.findByIdOrThrow(this.categoryRepository, todoListRequest.categoryId(), "Category");
 
         final TodoList todoList = new TodoList(
                 todoListRequest.title(),
@@ -40,7 +44,8 @@ public class TodoListServiceImpl implements TodoListService {
                 todoListRequest.status(),
                 todoListRequest.completedAt(),
                 todoListRequest.dueAt(),
-                user
+                user,
+                category
         );
 
         PersistenceUtils.save(this.todoListRepository, todoList, "TodoList");
@@ -72,6 +77,9 @@ public class TodoListServiceImpl implements TodoListService {
         todoList.setStatus(todoListRequest.status());
         todoList.setCompletedAt(todoListRequest.completedAt());
         todoList.setDueAt(todoListRequest.dueAt());
+        if (!todoList.getCategory().getId().equals(todoListRequest.categoryId())) {
+            todoList.setCategory(RepositoryUtils.findByIdOrThrow(this.categoryRepository, todoListRequest.categoryId(), "Category"));
+        }
         PersistenceUtils.save(this.todoListRepository, todoList, "TodoList");
     }
 
@@ -92,6 +100,9 @@ public class TodoListServiceImpl implements TodoListService {
                 PriorityType.fromInt(todoList.getPriority()).getCode(),
                 todoList.getCompletedAt(),
                 todoList.getDueAt(),
+                todoList.getCategory().getId(),
+                todoList.getCategory().getName(),
+                todoList.getCategory().getDescription(),
                 todoList.getCreatedAt(),
                 todoList.getUpdatedAt()
         );

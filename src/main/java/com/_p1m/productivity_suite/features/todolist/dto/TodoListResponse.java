@@ -10,6 +10,9 @@ public record TodoListResponse(
         String priorityValue,
         Long   completedAt,
         Long   dueAt,
+        Long   categoryId,
+        String categoryName,
+        String categoryColor,
         Long   createdAt,
         Long   updatedAt
 ) {}

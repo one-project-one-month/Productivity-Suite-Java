@@ -40,13 +40,17 @@ public class TodoList implements PersistenceUtils.Identifiable {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Long createdAt;
 
     @Column(name = "updated_at", nullable = false)
     private Long updatedAt;
 
-    public TodoList(final String title, final String description, final Integer priority, final Integer status, final Long completedAt, final Long dueAt, final User user) {
+    public TodoList(final String title, final String description, final Integer priority, final Integer status, final Long completedAt, final Long dueAt, final User user, final Category category) {
         this.title = title;
         this.description = description;
         this.priority = priority;
@@ -54,6 +58,7 @@ public class TodoList implements PersistenceUtils.Identifiable {
         this.completedAt = completedAt;
         this.dueAt = dueAt;
         this.user = user;
+        this.category = category;
     }
 
     @PrePersist

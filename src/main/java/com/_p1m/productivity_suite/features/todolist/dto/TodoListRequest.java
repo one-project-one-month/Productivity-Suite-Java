@@ -8,5 +8,6 @@ public record TodoListRequest(
         @ValidStatusType Integer status,
         @ValidPriorityType Integer priority,
         @ValidTodoListCompletedAt Long completedAt,
-        @ValidTodoListDueAt Long dueAt
+        @ValidTodoListDueAt Long dueAt,
+        @ValidCategoryId Long categoryId
 ) {}
