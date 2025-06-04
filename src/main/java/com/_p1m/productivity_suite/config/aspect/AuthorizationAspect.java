@@ -3,17 +3,15 @@ package com._p1m.productivity_suite.config.aspect;
 import com._p1m.productivity_suite.config.annotations.AuthorizationCheck;
 import com._p1m.productivity_suite.config.exceptions.EntityNotFoundException;
 import com._p1m.productivity_suite.config.exceptions.UnauthorizedException;
-import com._p1m.productivity_suite.data.models.Category;
-import com._p1m.productivity_suite.data.models.Note;
-import com._p1m.productivity_suite.data.models.TodoList;
+import com._p1m.productivity_suite.data.models.*;
 import com._p1m.productivity_suite.features.categories.repository.CategoryRepository;
+import com._p1m.productivity_suite.features.income.repository.IncomeRepository;
 import com._p1m.productivity_suite.features.note_taking.repository.NoteRepository;
 import com._p1m.productivity_suite.features.todolist.repository.TodoListRepository;
 import com._p1m.productivity_suite.features.users.dto.response.UserDto;
 import com._p1m.productivity_suite.features.users.utils.UserUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import com._p1m.productivity_suite.data.models.Currency;
 import com._p1m.productivity_suite.features.currency.repo.CurrencyRepository;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
@@ -28,11 +26,9 @@ import com._p1m.productivity_suite.config.exceptions.EntityNotFoundException;
 import com._p1m.productivity_suite.config.exceptions.UnauthorizedException;
 import com._p1m.productivity_suite.data.models.Category;
 import com._p1m.productivity_suite.data.models.Note;
-import com._p1m.productivity_suite.data.models.Transaction;
 import com._p1m.productivity_suite.features.categories.repository.CategoryRepository;
 import com._p1m.productivity_suite.features.note_taking.repository.NoteRepository;
 import com._p1m.productivity_suite.features.transcation.repository.TransactionRepository;
-import com._p1m.productivity_suite.data.models.Sequence;
 import com._p1m.productivity_suite.features.sequence.repository.SequenceRepository;
 
 @Aspect
@@ -46,6 +42,7 @@ public class AuthorizationAspect {
     private final TransactionRepository transactionRepository;
     private final SequenceRepository sequenceRepository;
     private final CurrencyRepository currencyRepository;
+    private final IncomeRepository incomeRepository;
     private final UserUtil userUtil;
 
     @Before("@annotation(authorizationCheck)")
@@ -101,7 +98,15 @@ public class AuthorizationAspect {
                 final Currency currency = currencyRepository.findById(resourceId)
                         .orElseThrow(() -> new EntityNotFoundException("Currency not found"));
                 if (!currency.getUser().getId().equals(userDto.getId())){
-                    throw new UnauthorizedException("Unauthorized to access this note");
+                    throw new UnauthorizedException("Unauthorized to access this currency");
+                }
+            }
+
+            case "INCOME" -> {
+                final Income income = incomeRepository.findById(resourceId)
+                        .orElseThrow(() -> new EntityNotFoundException("Income not found"));
+                if (!income.getUser().getId().equals(userDto.getId())){
+                    throw new UnauthorizedException("Unauthorized to access this income");
                 }
             }
 
