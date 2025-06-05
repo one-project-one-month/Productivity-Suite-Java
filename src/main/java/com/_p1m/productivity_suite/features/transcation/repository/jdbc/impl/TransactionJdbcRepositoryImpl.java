@@ -24,13 +24,15 @@ public class TransactionJdbcRepositoryImpl implements TransactionJdbcRepository 
 
     private static final String FIND_ALL_WITH_PAGINATION = """
         SELECT
-            id, amount, description, transaction_date, created_at, updated_at
+            t.id, t.amount, t.description, t.transaction_date, t.category_id, t.created_at, t.updated_at, c.id AS category_id, c.name AS category_name, c.description AS category_description
         FROM
-            transaction
+            transaction t
+        LEFT JOIN 
+            categories c On c.id = t.category_id
         WHERE
-            user_id = ?
+            t.user_id = ?
         ORDER BY
-            created_at DESC
+            t.created_at DESC
         LIMIT ?
         OFFSET ?;
     """;
