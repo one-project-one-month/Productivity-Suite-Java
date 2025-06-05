@@ -49,9 +49,14 @@ public class TransactionJdbcRepositoryImpl implements TransactionJdbcRepository 
     @Override
     public List<TransactionResponse> searchTransactions(final Long userId, final Long categoryId, final String description, final Long transactionDate, final BigDecimal fromAmount, final BigDecimal toAmount, final int limit, final int offset) {
         final StringBuilder sql = new StringBuilder("""
-            SELECT id, amount, description, transaction_date, created_at, updated_at
-            FROM transaction
-            WHERE user_id = ?
+            SELECT
+                t.id, t.amount, t.description, t.transaction_date, t.category_id, t.created_at, t.updated_at, c.id AS category_id, c.name AS category_name, c.description AS category_description
+            FROM
+                transaction t
+            LEFT JOIN
+                categories c On c.id = t.category_id
+            WHERE
+                t.user_id = ?
         """);
 
         final List<Object> params = new ArrayList<>();
