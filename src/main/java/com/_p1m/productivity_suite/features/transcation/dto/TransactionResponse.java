@@ -7,6 +7,9 @@ public record TransactionResponse(
         BigDecimal amount,
         String description,
         Long transactionDate,
+        Long categoryId,
+        String categoryName,
+        String categoryColor,
         Long createdAt,
         Long updatedAt
 ) { }
