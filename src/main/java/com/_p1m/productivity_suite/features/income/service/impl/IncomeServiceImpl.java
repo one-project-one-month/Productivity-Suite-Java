@@ -83,6 +83,7 @@ public class IncomeServiceImpl implements IncomeService {
     private IncomeResponse toIncomeResponse(final Income income) {
         return new IncomeResponse(
                 income.getId(),
+                income.getAmount(),
                 income.getCategory().getId(),
                 income.getCategory().getName(),
                 income.getCategory().getDescription()
