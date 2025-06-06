@@ -86,4 +86,38 @@ public class ExpenseSummaryController {
 
         return ResponseUtils.buildResponse(request, response, requestStartTime);
     }
+
+    @GetMapping("/daily-category-converted")
+    @Operation(
+            summary = "Get daily expense summary by category and convert to target currency",
+            description = "Fetch total expenses for a category per day and convert the amounts to the given currency.",
+            responses = {
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "200",
+                            description = "Converted daily category summary retrieved",
+                            content = @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = ApiResponse.class))
+                    )
+            }
+    )
+    public ResponseEntity<ApiResponse> getDailyCategorySummaryConverted(
+            @RequestHeader(value = "Authorization") String authHeader,
+            @RequestParam (value = "categoryId") final Long categoryId,
+            @RequestParam(value = "currencyCode") final String currencyCode,
+            HttpServletRequest request
+    ) {
+        final double requestStartTime = RequestUtils.extractRequestStartTime(request);
+
+        final List<Map<String, Object>> data = this.expenseSummaryService.getConvertedCategorySummaryByDay(authHeader, categoryId, currencyCode);
+
+        final ApiResponse response = ApiResponse.builder()
+                .success(1)
+                .code(200)
+                .message("Converted daily category summary retrieved")
+                .data(data)
+                .build();
+
+        return ResponseUtils.buildResponse(request, response, requestStartTime);
+    }
+
 }

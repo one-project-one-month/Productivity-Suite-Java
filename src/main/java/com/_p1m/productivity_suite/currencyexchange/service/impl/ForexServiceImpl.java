@@ -96,37 +96,76 @@ public class ForexServiceImpl implements ForexService {
         final String today = LocalDate.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
         log.debug("🔄 [ForexServiceImpl] Converting {} {} to {}", amount, fromCurrency, toCurrency);
 
-        final CompletableFuture<Optional<String>> fromRateFuture = getForexByCurrency(today, fromCurrency);
-        final CompletableFuture<Optional<String>> toRateFuture = getForexByCurrency(today, toCurrency);
+        if ("MMK".equalsIgnoreCase(fromCurrency)) {
+            // MMK ➝ Foreign (amount ÷ toRate)
+            return this.getForexByCurrency(today, toCurrency).thenApply(toRateOpt -> {
+                if (toRateOpt.isEmpty()) {
+                    log.warn("⚠️ [ForexServiceImpl] Missing rate for currency={}", toCurrency);
+                    throw new IllegalStateException("No exchange rate found for currency: " + toCurrency);
+                }
 
-        return fromRateFuture.thenCombine(toRateFuture, (fromRateOpt, toRateOpt) -> {
-            if (fromRateOpt.isEmpty() || toRateOpt.isEmpty()) {
-                final String missing = fromRateOpt.isEmpty() ? fromCurrency : toCurrency;
-                log.warn("⚠️ [ForexServiceImpl] Missing rate for currency={}", missing);
-                throw new IllegalStateException("No exchange rate found for currency: " + missing);
-            }
+                try {
+                    BigDecimal toRate = new BigDecimal(toRateOpt.get());
+                    BigDecimal exchanged = amount.divide(toRate, 4, RoundingMode.HALF_UP);
+                    log.info("✅ [ForexServiceImpl] {} MMK = {} {} (toRate={})", amount, exchanged, toCurrency, toRate);
+                    return exchanged;
+                } catch (NumberFormatException e) {
+                    log.error("❌ [ForexServiceImpl] Invalid rate format: {}", toRateOpt.get(), e);
+                    throw new IllegalArgumentException("Invalid rate format for currency");
+                }
+            });
 
-            try {
-                final BigDecimal fromRate = new BigDecimal(fromRateOpt.get());
-                final BigDecimal toRate = new BigDecimal(toRateOpt.get());
+        } else if ("MMK".equalsIgnoreCase(toCurrency)) {
+            // Foreign ➝ MMK (amount × fromRate)
+            return this.getForexByCurrency(today, fromCurrency).thenApply(fromRateOpt -> {
+                if (fromRateOpt.isEmpty()) {
+                    log.warn("⚠️ [ForexServiceImpl] Missing rate for currency={}", fromCurrency);
+                    throw new IllegalStateException("No exchange rate found for currency: " + fromCurrency);
+                }
 
-                final BigDecimal exchanged = amount
-                        .multiply(fromRate)
-                        .divide(toRate, 4, RoundingMode.HALF_UP);
+                try {
+                    BigDecimal fromRate = new BigDecimal(fromRateOpt.get());
+                    BigDecimal exchanged = amount.multiply(fromRate).setScale(4, RoundingMode.HALF_UP);
+                    log.info("✅ [ForexServiceImpl] {} {} = {} MMK (fromRate={})", amount, fromCurrency, exchanged, fromRate);
+                    return exchanged;
+                } catch (NumberFormatException e) {
+                    log.error("❌ [ForexServiceImpl] Invalid rate format: {}", fromRateOpt.get(), e);
+                    throw new IllegalArgumentException("Invalid rate format for currency");
+                }
+            });
 
-                log.info("✅ [ForexServiceImpl] {} {} = {} {} (fromRate={}, toRate={})",
-                        amount, fromCurrency, exchanged, toCurrency, fromRate, toRate);
+        } else {
+            // Foreign ➝ Foreign (amount × fromRate ÷ toRate)
+            final CompletableFuture<Optional<String>> fromRateFuture = getForexByCurrency(today, fromCurrency);
+            final CompletableFuture<Optional<String>> toRateFuture = getForexByCurrency(today, toCurrency);
 
-                return exchanged;
-            } catch (final NumberFormatException e) {
-                log.error("❌ [ForexServiceImpl] Invalid rate format (from={} or to={})", fromRateOpt.get(), toRateOpt.get(), e);
-                throw new IllegalArgumentException("Invalid rate format for currency");
-            }
-        }).exceptionally(ex -> {
-            log.error("💥 [ForexServiceImpl] Exchange calculation failed: {}", ex.getMessage(), ex);
-            throw new RuntimeException("Exchange calculation failed", ex);
-        });
+            return fromRateFuture.thenCombine(toRateFuture, (fromRateOpt, toRateOpt) -> {
+                if (fromRateOpt.isEmpty() || toRateOpt.isEmpty()) {
+                    final String missing = fromRateOpt.isEmpty() ? fromCurrency : toCurrency;
+                    log.warn("⚠️ [ForexServiceImpl] Missing rate for currency={}", missing);
+                    throw new IllegalStateException("No exchange rate found for currency: " + missing);
+                }
+
+                try {
+                    final BigDecimal fromRate = new BigDecimal(fromRateOpt.get());
+                    final BigDecimal toRate = new BigDecimal(toRateOpt.get());
+
+                    final BigDecimal exchanged = amount
+                            .multiply(fromRate)
+                            .divide(toRate, 4, RoundingMode.HALF_UP);
+
+                    log.info("✅ [ForexServiceImpl] {} {} = {} {} (fromRate={}, toRate={})",
+                            amount, fromCurrency, exchanged, toCurrency, fromRate, toRate);
+
+                    return exchanged;
+                } catch (final NumberFormatException e) {
+                    log.error("❌ [ForexServiceImpl] Invalid rate format (from={} or to={})", fromRateOpt.get(), toRateOpt.get(), e);
+                    throw new IllegalArgumentException("Invalid rate format for currency");
+                }
+            });
+        }
     }
+
 
     @Override
     public CompletableFuture<List<ForexCurrencyResponse>> getCurrencyCodeList() {
