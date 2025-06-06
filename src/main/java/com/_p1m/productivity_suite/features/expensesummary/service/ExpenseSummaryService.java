@@ -8,4 +8,5 @@ import java.util.Map;
 public interface ExpenseSummaryService {
     CategoryAndCurrencyResponse retrieveCategoryAndCurrency(String authHeader);
     List<Map<String, Object>> getDailyFlatSummary(final String authHeader);
+    List<Map<String, Object>> getConvertedCategorySummaryByDay(String authHeader, Long categoryId, String currencyCode);
 }

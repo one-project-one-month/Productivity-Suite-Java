@@ -5,4 +5,5 @@ import java.util.Map;
 
 public interface ExpenseSummaryRepository {
     List<Map<String, Object>> findDailySummaryByUser(Long userId);
+    List<Map<String, Object>> findByUserIdAndCategoryId(Long userId, Long categoryId);
 }

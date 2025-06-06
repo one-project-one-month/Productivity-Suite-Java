@@ -39,7 +39,6 @@ public class ExpenseSummaryRepositoryImpl implements ExpenseSummaryRepository {
 
         DateTimeFormatter desiredFormatter = DateTimeFormatter.ofPattern("d.M.yy");
 
-        // Map<date_string, Map<category, total>>
         final Map<String, Map<String, BigDecimal>> grouped = new LinkedHashMap<>();
 
         for (Map<String, Object> row : rows) {
@@ -59,7 +58,6 @@ public class ExpenseSummaryRepositoryImpl implements ExpenseSummaryRepository {
                     .merge(category, amount, BigDecimal::add);
         }
 
-        // Convert to List<Map<String,Object>>
         List<Map<String, Object>> result = new ArrayList<>();
         for (Map.Entry<String, Map<String, BigDecimal>> dateEntry : grouped.entrySet()) {
             Map<String, Object> map = new LinkedHashMap<>();
@@ -71,4 +69,18 @@ public class ExpenseSummaryRepositoryImpl implements ExpenseSummaryRepository {
         return result;
     }
 
+    @Override
+    public List<Map<String, Object>> findByUserIdAndCategoryId(Long userId, Long categoryId) {
+        String sql = """
+            SELECT
+                t.transaction_date,
+                c.name AS category,
+                t.amount
+            FROM transaction t
+            JOIN categories c ON t.category_id = c.id
+            WHERE t.user_id = ? AND t.category_id = ?
+            ORDER BY t.transaction_date
+        """;
+        return this.jdbcTemplate.queryForList(sql, userId, categoryId);
+    }
 }
