@@ -14,8 +14,8 @@ import com._p1m.productivity_suite.data.models.Sequence;
 public interface SequenceRepository extends JpaRepository<Sequence, Long>{
 	List<Sequence> findByUserEmail(String email);
 	
-	@Query("SELECT s FROM Sequence s WHERE s.user.email = :email AND s.status = false")
-	Optional<Sequence> findStatusSequencesByUserEmail(@Param("email") String email);
+//	@Query("SELECT s FROM Sequence s WHERE s.user.email = :email AND s.status = false ORDER BY s.createdAt DESC")
+	Optional<Sequence> findTopByUserEmailAndStatusFalseOrderByCreatedAtDesc(String email);
 	
 	@Query("SELECT s.status FROM Sequence s WHERE s.id = :id")
 	Optional<Boolean> findStatusById(@Param("id") Long id);
