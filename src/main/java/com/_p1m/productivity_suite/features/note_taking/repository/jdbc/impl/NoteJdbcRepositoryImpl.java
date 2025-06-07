@@ -39,11 +39,11 @@ public class NoteJdbcRepositoryImpl implements NoteJdbcRepository {
             c.description AS category_color,
             COUNT(n.id) AS number_of_notes
         FROM
-            note n
+            categories c
         LEFT JOIN
-            categories c ON c.id = n.category_id
+            note n ON n.category_id = c.id
         WHERE
-            n.user_id = ?
+            c.user_id = ? AND c.type = '4'
         GROUP BY
             c.id, c.name, c.description;
     """;
