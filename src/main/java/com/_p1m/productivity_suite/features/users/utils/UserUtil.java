@@ -60,7 +60,7 @@ public class UserUtil {
         if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal() == null) {
             throw new UnauthorizedException("User is not authenticated");
         }
-
+        
         final String userEmail = authentication.getPrincipal().toString();
 
         final User user = userRepository.findByEmail(userEmail)

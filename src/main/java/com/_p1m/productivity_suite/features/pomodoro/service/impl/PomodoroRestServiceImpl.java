@@ -35,8 +35,9 @@ public class PomodoroRestServiceImpl implements PomodoroRestService {
 	public PomodoroRestResponse retrieveDataByEmailAndStatus(String authHeader) {
 		final UserDto userDto = this.userUtil.getCurrentUserDto(authHeader);
 		String email = userDto.getEmail();
-		Sequence sequence = sequenceRepository.findStatusSequencesByUserEmail(email).orElseThrow(
+		Sequence sequence = sequenceRepository.findTopByUserEmailAndStatusFalseOrderByCreatedAtDesc(email).orElseThrow(
 				() -> new EntityNotFoundException("Current running Sequence not found with email: " + email));
+		System.out.println("Sequence is "+sequence);
 		TimerSequence timerSequence = timerSequenceRepository.findTimerSequenceWithMaxStepBySequenceId(sequence.getId())
 				.orElseThrow(() -> new EntityNotFoundException(
 						"TimerSequence not found for sequence ID: " + sequence.getId()));
