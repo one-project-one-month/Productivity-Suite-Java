@@ -9,6 +9,11 @@ on:
       branches:
         - develop
         - 'dev-*'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.sha }}
+  cancel-in-progress: true
+
 jobs:
   application_build:
     name: "Build the Application"
