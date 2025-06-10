@@ -1,6 +1,8 @@
 package com._p1m.productivity_suite.features.summary.service.impl;
 
+import com._p1m.productivity_suite.features.summary.dto.BudgetSpentResponse;
 import com._p1m.productivity_suite.features.summary.dto.FocusTimeResponse;
+import com._p1m.productivity_suite.features.summary.dto.TaskCompleteResponse;
 import com._p1m.productivity_suite.features.summary.service.SummaryService;
 import com._p1m.productivity_suite.features.users.dto.response.UserDto;
 import com._p1m.productivity_suite.features.users.utils.UserUtil;
@@ -18,7 +20,6 @@ public class SummaryServiceImpl implements SummaryService {
 
     @PersistenceContext
     private final EntityManager entityManager;
-
     private final UserUtil userUtil;
 
     @Override
@@ -26,7 +27,6 @@ public class SummaryServiceImpl implements SummaryService {
         final UserDto userDto = this.userUtil.getCurrentUserDto(authHeader);
 
         // Filter the duration with  sequence status, user's id, timer_sequence step, and timer remaining_time
-//
         String totalFocusTimeQuery = """
             WITH days AS (
               SELECT
@@ -58,8 +58,6 @@ public class SummaryServiceImpl implements SummaryService {
             ORDER BY d.day;
         """;
 
-
-        // TypedQuery<Object[]> query = entityManager.createNativeQuery(totalFocusTimeQuery, Object[].class);
         Query query = entityManager.createNativeQuery(totalFocusTimeQuery);
         query.setParameter(1, userDto.getId());
 
@@ -71,6 +69,108 @@ public class SummaryServiceImpl implements SummaryService {
                         ((Number) row[1]).longValue()
                 )).toList();
     }
+
+    @Override
+    public List<BudgetSpentResponse> retrieveTransactionMonthlySpentSummary(String authHeader) {
+        final UserDto userDto = this.userUtil.getCurrentUserDto(authHeader);
+
+        String totalSpentAmountQuery = """
+                WITH user_budget AS (
+                  SELECT id AS user_id, set_amount
+                  FROM users
+                  WHERE id = ?
+                ),
+                monthly_expenses AS (
+                  SELECT
+                    user_id,
+                    SUM(amount) AS total_expense
+                  FROM transaction
+                  WHERE user_id = ?
+                    AND TO_CHAR(TO_TIMESTAMP(transaction_date), 'YYYY-MM') = TO_CHAR(CURRENT_DATE, 'YYYY-MM')
+                  GROUP BY user_id
+                ),
+                calculated AS (
+                  SELECT
+                    u.user_id,
+                    u.set_amount,
+                    COALESCE(e.total_expense, 0) AS total_expense,
+                    ROUND((COALESCE(e.total_expense, 0) / u.set_amount) * 100, 2) AS expense_percentage,
+                    ROUND(100 - (COALESCE(e.total_expense, 0) / u.set_amount) * 100, 2) AS remaining_percentage
+                  FROM user_budget u
+                  LEFT JOIN monthly_expenses e ON u.user_id = e.user_id
+                )
+                SELECT
+                  'spent' AS overview,
+                  expense_percentage AS percentage
+                FROM calculated
+                UNION ALL
+                SELECT
+                  'remaining' AS overview,
+                  remaining_percentage AS percentage
+                FROM calculated;
+                
+                """;
+
+        Query query = entityManager.createNativeQuery(totalSpentAmountQuery);
+        query.setParameter(1, userDto.getId());
+        query.setParameter(2, userDto.getId());
+
+        @SuppressWarnings("unchecked")
+        List<Object[]> results = query.getResultList();
+        return results.stream()
+                .map(row -> new BudgetSpentResponse(
+                        (String) row[0],
+                        ((Number) row[1]).floatValue()
+                )).toList();
+    }
+
+    @Override
+    public List<TaskCompleteResponse> retrieveTaskCompleteSummary(String authHeader) {
+        final UserDto userDto = this.userUtil.getCurrentUserDto(authHeader);
+        System.out.println("User Id : " + userDto.getId());
+
+        String totalTaskCompleteQuery = """
+                WITH filtered_todos AS (
+                          SELECT
+                            CASE
+                              WHEN status = 4 THEN 'completed'
+                              WHEN status IN (1, 2, 3) THEN 'active'
+                            END AS status_group
+                          FROM todo_list
+                          WHERE user_id = ?
+                            AND status IN (1, 2, 3, 4)
+                        ),
+                        status_counts AS (
+                          SELECT
+                            status_group,
+                            COUNT(*) AS count
+                          FROM filtered_todos
+                          GROUP BY status_group
+                        ),
+                        total_count AS (
+                          SELECT
+                            SUM(count) AS total
+                          FROM status_counts
+                        )
+                        SELECT
+                          sc.status_group,
+                          ROUND((CAST(sc.count AS DECIMAL) / tc.total) * 100, 2) AS percentage
+                        FROM status_counts sc, total_count tc;
+            """;
+
+
+        Query query = entityManager.createNativeQuery(totalTaskCompleteQuery);
+        query.setParameter(1, userDto.getId());
+
+        @SuppressWarnings("unchecked")
+        List<Object[]> results = query.getResultList();
+        return results.stream()
+                .map(row -> new TaskCompleteResponse(
+                        (String) row[0],
+                        ((Number) row[1]).floatValue()
+                )).toList();
+    }
+
 
 
 }

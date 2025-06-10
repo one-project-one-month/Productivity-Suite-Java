@@ -48,7 +48,7 @@ public class IncomeServiceImpl implements IncomeService {
         final UserDto userDto = this.userUtil.getCurrentUserDto(authHeader);
         final List<Income> incomes = RepositoryUtils.findAllByUserId(
                 userDto.getId(),
-                Sort.by(Sort.Direction.ASC, "created_at"),
+                Sort.by(Sort.Direction.ASC, "createdAt"),
                 this.incomeRepository::findAllByUserId
         );
         return incomes.stream()
@@ -83,6 +83,7 @@ public class IncomeServiceImpl implements IncomeService {
     private IncomeResponse toIncomeResponse(final Income income) {
         return new IncomeResponse(
                 income.getId(),
+                income.getAmount(),
                 income.getCategory().getId(),
                 income.getCategory().getName(),
                 income.getCategory().getDescription()

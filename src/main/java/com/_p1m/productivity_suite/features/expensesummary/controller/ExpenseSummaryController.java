@@ -16,6 +16,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.Map;
+
 @Tag(name = "Expense Summary Module", description = "Endpoints for expense summary and related data")
 @RestController
 @RequestMapping("/productivity-suite/api/v1/expense-summary")
@@ -52,4 +55,69 @@ public class ExpenseSummaryController {
 
         return ResponseUtils.buildResponse(request, response, requestStartTime);
     }
+
+    @GetMapping("/daily-flat")
+    @Operation(
+            summary = "Get daily flat summary grouped by date",
+            description = "Returns daily transaction totals grouped by date and flattened by category name. Response is dynamic, category names appear as keys.",
+            responses = {
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "200",
+                            description = "Successfully fetched daily flat summary",
+                            content = @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = ApiResponse.class))
+                    )
+            }
+    )
+    public ResponseEntity<ApiResponse> getFlatSummary(
+            final HttpServletRequest request,
+            @RequestHeader(value = "Authorization") final String authHeader
+    ) {
+        final double requestStartTime = RequestUtils.extractRequestStartTime(request);
+
+        final List<Map<String, Object>> data = this.expenseSummaryService.getDailyFlatSummary(authHeader);
+
+        final ApiResponse response = ApiResponse.builder()
+                .success(1)
+                .code(200)
+                .message("Daily flat expense summary retrieved successfully")
+                .data(data)
+                .build();
+
+        return ResponseUtils.buildResponse(request, response, requestStartTime);
+    }
+
+    @GetMapping("/daily-category-converted")
+    @Operation(
+            summary = "Get daily expense summary by category and convert to target currency",
+            description = "Fetch total expenses for a category per day and convert the amounts to the given currency.",
+            responses = {
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "200",
+                            description = "Converted daily category summary retrieved",
+                            content = @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = ApiResponse.class))
+                    )
+            }
+    )
+    public ResponseEntity<ApiResponse> getDailyCategorySummaryConverted(
+            @RequestHeader(value = "Authorization") String authHeader,
+            @RequestParam (value = "categoryId") final Long categoryId,
+            @RequestParam(value = "currencyCode") final String currencyCode,
+            HttpServletRequest request
+    ) {
+        final double requestStartTime = RequestUtils.extractRequestStartTime(request);
+
+        final List<Map<String, Object>> data = this.expenseSummaryService.getConvertedCategorySummaryByDay(authHeader, categoryId, currencyCode);
+
+        final ApiResponse response = ApiResponse.builder()
+                .success(1)
+                .code(200)
+                .message("Converted daily category summary retrieved")
+                .data(data)
+                .build();
+
+        return ResponseUtils.buildResponse(request, response, requestStartTime);
+    }
+
 }

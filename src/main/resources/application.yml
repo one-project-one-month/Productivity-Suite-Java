@@ -1,8 +1,13 @@
 spring:
   application:
     name: productivity-suite
-  profiles:
-    active: dev
+#  profiles:
+#    active: dev
+  datasource:
+    url: jdbc:postgresql://dpg-d124sns9c44c73fus9d0-a.oregon-postgres.render.com/productivity_suite_db_trs3?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
+    username: root
+    password: XpcrExo8ZE9tz4Y6v6yC6SUGankGROQM
+    driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
       ddl-auto: update

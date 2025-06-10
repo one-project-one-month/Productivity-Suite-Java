@@ -15,6 +15,9 @@ public class TransactionResponseRowMapper implements RowMapper<TransactionRespon
                 rs.getBigDecimal("amount"),
                 rs.getString("description"),
                 rs.getLong("transaction_date"),
+                rs.getLong("category_id"),
+                rs.getString("category_name"),
+                rs.getString("category_description"),
                 rs.getLong("created_at"),
                 rs.getLong("updated_at")
         );

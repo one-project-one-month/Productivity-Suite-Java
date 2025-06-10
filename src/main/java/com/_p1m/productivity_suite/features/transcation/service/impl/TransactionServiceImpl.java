@@ -87,6 +87,9 @@ public class TransactionServiceImpl implements TransactionService {
                 transaction.getAmount(),
                 transaction.getDescription(),
                 transaction.getTransactionDate(),
+                transaction.getCategory().getId(),
+                transaction.getCategory().getName(),
+                transaction.getCategory().getDescription(),
                 transaction.getCreatedAt(),
                 transaction.getUpdatedAt()
         );
@@ -104,6 +107,9 @@ public class TransactionServiceImpl implements TransactionService {
     transaction.setDescription(transactionRequest.description());
     transaction.setTransactionDate(transactionRequest.transactionDate());
     transaction.setAmount(transactionRequest.amount());
+    if (!transaction.getCategory().getId().equals(transactionRequest.categoryId())) {
+        transaction.setCategory(RepositoryUtils.findByIdOrThrow(this.categoryRepository, transactionRequest.categoryId(), "Category"));
+    }
     PersistenceUtils.save(this.transactionRepository, transaction, "Transaction");
     }
 

@@ -24,13 +24,15 @@ public class TransactionJdbcRepositoryImpl implements TransactionJdbcRepository 
 
     private static final String FIND_ALL_WITH_PAGINATION = """
         SELECT
-            id, amount, description, transaction_date, created_at, updated_at
+            t.id, t.amount, t.description, t.transaction_date, t.category_id, t.created_at, t.updated_at, c.id AS category_id, c.name AS category_name, c.description AS category_description
         FROM
-            transaction
+            transaction t
+        LEFT JOIN 
+            categories c On c.id = t.category_id
         WHERE
-            user_id = ?
+            t.user_id = ?
         ORDER BY
-            created_at DESC
+            t.created_at DESC
         LIMIT ?
         OFFSET ?;
     """;
@@ -47,9 +49,14 @@ public class TransactionJdbcRepositoryImpl implements TransactionJdbcRepository 
     @Override
     public List<TransactionResponse> searchTransactions(final Long userId, final Long categoryId, final String description, final Long transactionDate, final BigDecimal fromAmount, final BigDecimal toAmount, final int limit, final int offset) {
         final StringBuilder sql = new StringBuilder("""
-            SELECT id, amount, description, transaction_date, created_at, updated_at
-            FROM transaction
-            WHERE user_id = ?
+            SELECT
+                t.id, t.amount, t.description, t.transaction_date, t.created_at, t.updated_at, c.id AS category_id, c.name AS category_name, c.description AS category_description
+            FROM
+                transaction t
+            LEFT JOIN
+                categories c On c.id = t.category_id
+            WHERE
+                t.user_id = ?
         """);
 
         final List<Object> params = new ArrayList<>();
@@ -61,7 +68,7 @@ public class TransactionJdbcRepositoryImpl implements TransactionJdbcRepository 
         }
 
         if (description != null && !description.trim().isEmpty()) {
-            sql.append(" AND LOWER(description) LIKE ?");
+            sql.append(" AND LOWER(t.description) LIKE ?");
             params.add("%" + description.toLowerCase() + "%");
         }
 
@@ -73,22 +80,22 @@ public class TransactionJdbcRepositoryImpl implements TransactionJdbcRepository 
             final Long startOfDay = localDate.atStartOfDay(zoneId).toEpochSecond();
             final Long endOfDay = localDate.plusDays(1).atStartOfDay(zoneId).toEpochSecond();
 
-            sql.append(" AND transaction_date >= ? AND transaction_date < ?");
+            sql.append(" AND t.transaction_date >= ? AND t.transaction_date < ?");
             params.add(startOfDay);
             params.add(endOfDay);
         }
 
         if (fromAmount != null) {
-            sql.append(" AND amount >= ?");
+            sql.append(" AND t.amount >= ?");
             params.add(fromAmount);
         }
 
         if (toAmount != null) {
-            sql.append(" AND amount <= ?");
+            sql.append(" AND t.amount <= ?");
             params.add(toAmount);
         }
 
-        sql.append(" ORDER BY created_at DESC LIMIT ? OFFSET ?");
+        sql.append(" ORDER BY t.created_at DESC LIMIT ? OFFSET ?");
         params.add(limit);
         params.add(offset);
 
