@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
@@ -66,7 +67,7 @@ public class SummaryServiceImpl implements SummaryService {
         return results.stream()
                 .map(row -> new FocusTimeResponse(
                         (String) row[0],
-                        ((Number) row[1]).longValue()
+                        Optional.ofNullable(row[1]).map(Number.class::cast).map(Number::longValue).orElse(0L)
                 )).toList();
     }
 
@@ -120,7 +121,7 @@ public class SummaryServiceImpl implements SummaryService {
         return results.stream()
                 .map(row -> new BudgetSpentResponse(
                         (String) row[0],
-                        ((Number) row[1]).floatValue()
+                        Optional.ofNullable(row[1]).map(Number.class::cast).map(Number::floatValue).orElse(0.0f)
                 )).toList();
     }
 
@@ -167,7 +168,7 @@ public class SummaryServiceImpl implements SummaryService {
         return results.stream()
                 .map(row -> new TaskCompleteResponse(
                         (String) row[0],
-                        ((Number) row[1]).floatValue()
+                        Optional.ofNullable(row[1]).map(Number.class::cast).map(Number::floatValue).orElse(0.0f)
                 )).toList();
     }
 
